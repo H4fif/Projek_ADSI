@@ -2,6 +2,7 @@
 // This script display data pegawai from database.
 // This script synced with GitHub.
 // This file status is STAGED.
+// 2nd comment update.
 
 // Set the page title and include the header:
 $page_title = 'Data Pegawai';
