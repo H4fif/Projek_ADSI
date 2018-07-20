@@ -1,0 +1,13 @@
+# Script .htaccess
+<IfModule mod_rewrite.c>
+
+# Turn on the engine:
+RewriteEngine on
+
+# Set the base to this directory:
+RewriteBase '/Projek ADSI/'
+
+# Redirect certain paths to index.php:
+RewriteRule ^(home|login|logout)/?$ index.php?p=$1
+
+</IfModule>

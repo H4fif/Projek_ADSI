@@ -1,0 +1,92 @@
+Projek ADSI (revisi)
+- Skema Relasi (done)
+- Database (done)
+- Webpage (on-doing)
+  + login page (done)
+  + logout page (done)
+  + lihat data akun (done)
+    ~ Features: - Search (done)
+                - Sort (done)
+                - Link to edit (done)
+                - Link to delete (done)
+                - Pagination (done)
+    
+    ~ Bugs:     - didn't keep the sorting and the searching value together
+
+  + lihat data pegawai (update on-progress)
+    ~ Features: - Search (done)
+                - Sort (done)
+                - Link to edit
+                - Link to delete 
+                - Pagination
+
+  + lihat data pelanggan (need update)
+    ~ Features: - Search 
+                - Sort 
+                - Link to edit 
+                - Link to delete 
+                - Pagination
+
+  + lihat data supplier (need update)
+    ~ Features: - Search 
+                - Sort 
+                - Link to edit
+                - Link to delete 
+                - Pagination
+
+  + lihat data barang (need update)
+    ~ Features: - Search 
+                - Sort 
+                - Link to edit 
+                - Link to delete 
+                - Pagination
+
+  + lihat data pembelian (need update)
+    ~ Features: - Search 
+                - Sort 
+                - Link to edit 
+                - Link to delete 
+                - Pagination
+
+  + lihat data detail pembelian
+    ~ Features: - Search 
+                - Sort 
+                - Link to edit 
+                - Link to delete 
+                - Pagination
+
+  + lihat data penjualan
+    ~ Features: - Search 
+                - Sort 
+                - Link to edit 
+                - Link to delete 
+                - Pagination
+
+  + lihat data detail penjualan
+    ~ Features: - Search 
+                - Sort 
+                - Link to edit 
+                - Link to delete 
+                - Pagination
+
+  + tambah akun (done)
+  + tambah pegawai (done)
+  + tambah pelanggan
+  + tambah supplier
+  + tambah barang
+  + tambah pembelian
+  + tambah penjualan
+  + edit akun (need update)
+  + edit pegawai
+  + edit pelanggan
+  + edit supplier
+  + edit barang
+  + edit pembelian
+  + edit penjualan
+  + hapus akun (done)
+  + hapus pegawai
+  + hapus pelanggan
+  + hapus supplier
+  + hapus barang
+  + hapus pembelian
+  + hapus penjualan
