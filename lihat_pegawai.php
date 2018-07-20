@@ -1,5 +1,7 @@
 <?php  # Script lihat_pegawai.php
 // This script display data pegawai from database.
+// This script synced with GitHub.
+// This file status is STAGED.
 
 // Set the page title and include the header:
 $page_title = 'Data Pegawai';
