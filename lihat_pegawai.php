@@ -1,8 +1,38 @@
 <?php  # Script lihat_pegawai.php
 // This script display data pegawai from database.
-// This script synced with GitHub.
-// This file status is STAGED.
-// 2nd comment update.
+
+/* FEATURES LIST */
+
+// - Searching (done).
+// - Sorting (done).
+// - Searching & sorting combined (done).
+// - Pagination (to do).
+// - Edit.
+// - Delete.
+
+/* END FEATURE LIST */
+
+/* FUNCTIONS */
+
+// Function to check whether the number is kelipatan 5.
+// Need 1 parameter $value, should be numeric int.
+function check_five($value) {
+    if (($value % 5) == 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+function check_start($value, $display) {
+    if (($value % $display) == 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
+}
+
+/* END FUNCTIONS */
 
 // Set the page title and include the header:
 $page_title = 'Data Pegawai';
@@ -17,16 +47,32 @@ if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] !
 
 }  // End of user validation.
 
+// Validate the display:
+if (isset($_GET['display']) && check_five($_GET['display'])) {
+    $display = $_GET['display'];
+} else {
+    if (isset($_SESSION['display'])) {
+        $display = $_SESSION['display'];
+    } else {
+        $display = 5;
+    }
+
+}  // End of display validation.
+
+$_SESSION['display'] = $display;
+
+if (isset($_GET['start']) && check_start($_GET['start'], $display)) {
+    $start = $_GET['start'];
+} else {
+    $start = 0;
+}
+
 $cari_error = FALSE;
 
 // SEARCHING validation:
 // If both values have a valid value, secure them.
 if (empty($_GET['col']) || empty($_GET['keyword']) || !in_array(strtolower($_GET['col']), ['1', '2', '3', '4'])) {
     
-    // unset($_GET['col']);  // Destroy it.
-
-    // unset($_GET['keyword']);  // Destroy it.
-
     $column = $keyword = FALSE;  // Set flag variables to FALSE.
 
 } else {  // If both values are not set or invalid, represent them as flag variable.
@@ -50,15 +96,15 @@ if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4, 5]) && in
 
 // Validate the $c:
 switch ($c) {
-    case 2 : $c = 'jenis_kelamin';
+    case 2 : $column = 'jenis_kelamin';
              break;
-    case 3 : $c = 'no_telepon';
+    case 3 : $column = 'no_telepon';
              break;
-    case 4 : $c = 'alamat';
+    case 4 : $column = 'alamat';
              break;
-    case 5 : $c = 'email';
+    case 5 : $column = 'email';
              break;
-    case 1 : $c = 'nama_lengkap';
+    case 1 : $column = 'nama_lengkap';
              break;
 
 }  // End of SWITCH ($c).
@@ -101,28 +147,35 @@ if ($column && $keyword) {
 
 }  // End od IF ($column).
 
-$q = "SELECT * FROM tb_pegawai $fq ORDER BY $c $ob";  // Make the query.
+$q = "SELECT COUNT(*) FROM tb_pegawai $fq";
+$r = @mysqli_query($dbc, $q) or die('<h1>Terjadi kesalahan!</h1><p>Kesalahan: ' . mysqli_error($dbc) . '</p>');
+list($total_row) = mysqli_fetch_array($r, MYSQLI_NUM);
 
+if (!$search && ($total_row == 0)) {
+    echo '<p>Tidak ada data.</p>';
+    goto endDScript;
+}
+
+$q = "SELECT * FROM tb_pegawai $fq ORDER BY $column $ob LIMIT $start, $display";  // Make the query.
 $r = @mysqli_query($dbc, $q);  // Execute the query.
-$total_row = mysqli_num_rows($r);
 
 // Validate the query result:
 if ($r) {  // If query succeed, check the returned row.
   
     echo '<form name="pencarian" action="lihat_pegawai.php" method="get">
       <select name="col">
-        <option>-- Cari berdasarkan --</option>
+        <option value="">-- Filter berdasarkan --</option>
         <option value="1"' . ((isset($_GET['col']) && ($_GET['col'] == '1')) ? ' selected="selected"' : '') . '>Nama</option>
         <option value="2"' . ((isset($_GET['col']) && ($_GET['col'] == '2')) ? ' selected="selected"' : '') . '>No. Telepon</option>
         <option value="3"' . ((isset($_GET['col']) && ($_GET['col'] == '3')) ? ' selected="selected"' : '') . '>Alamat</option>
         <option value="4"' . ((isset($_GET['col']) && ($_GET['col'] == '4')) ? ' selected="selected"' : '') . '>Email</option>
       </select>
       <input name="keyword" placeholder="Masukkan kata kunci" type="text" minlength="1" maxlength="255" value="' . ((isset($_GET['keyword']) ? $_GET['keyword'] : '')) . '" />
-      <input name="submit" type="submit" value="Cari" />
-    </form>';
+      <input name="submit" type="submit" value="Filter" />
+    </form><br />';
 
     if ($search) {
-        echo '<h2>Hasil pencarian:</h2>
+        echo '<h2>Hasil filter:</h2>
           <h3>' . $hpc . ': ' . $keyword . '</h3>';
     }
 
@@ -136,86 +189,134 @@ if ($r) {  // If query succeed, check the returned row.
         
         }  // End of IF ($search).
 
-        // echo '<p><a class="navlink" href="input_pegawai.php">Tambah pegawai baru</a></p>';
+    } else {
+        // Create the table with some table headers:
+        echo '<table border="0" cellspacing="5" cellpadding="5">
+          <tr>
+            <th>No.</th>
+            <th>Nama</th>
+            <th>Jenis Kelamin</th>
+            <th>No. Telepon</th>
+            <th>Alamat</th>
+            <th>Email</th>
+            <th>Edit</th>
+            <th>Hapus</th>
+          </tr>';
 
-        goto endDScript;
+        $no = $start + 1;  // For numbering the row.
 
-    }  // End of returned row validation.
-    // If there is at least one record being returned, continue the script.
+        // Display all records:
+        while ($row = mysqli_fetch_array($r, MYSQLI_ASSOC)) {  // Fetching each record to $row variable.
+
+            // NEED TO BE UPDATED!
+            // Display the data in one row:
+            echo '<tr>
+                <td>' . $no . '</td>
+                <td>' . $row['nama_lengkap'] . '</td>
+                <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-Laki' : 'Perempuan') . '</td>
+                <td>' . $row['no_telepon'] . '</td>
+                <td>' . $row['alamat'] . '</td>
+                <td>' . $row['email'] . '</td>
+                <td><a class="navlink" href="#">Edit</a></td>
+                <td><a class="navlink" href="#">Hapus</a></td>
+              </tr>';
+
+            $no++;  // Increment the number.
+
+        }  // End of WHILE loop.
+
+        echo '</table>';
+        
+        /* PAGINATION SECTION */
+
+        if ($total_row > $display) {
+          $page = ceil($total_row / $display);
+        } else {
+          $page = 1;
+        }
+
+        if ($page > 1) {
+            echo '<p>Halaman ';
+            $current_page = ($start / $display) + 1;
+
+            // Prev button:
+            if ($current_page != 1) {
+                echo '<a class="navlink" href="lihat_pegawai.php?col=' . $column . '&keyword=' . $keyword . '&start=' . ($start - $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Sebelumnya</a> ';
+            }
+
+            // Numbered link page:
+            for ($i = 1; $i <= $page; $i++) {
+            
+                if ($i == $current_page) {
+                    echo $i . ' ';
+                } else {
+                    echo '<a class="navlink" href="lihat_pegawai.php?col=' . $column . '&keyword=' . $keyword . '&start=' . ($display * ($i - 1)) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">' . $i . ' </a>';
+                }  // End of IF.
+
+            }  // End of FOR loop.
+
+            // Next button:
+            if ($current_page != $page) {
+                echo ' <a class="navlink" href="lihat_pegawai.php?col=' . $column . '&keyword=' . $keyword . '&start=' . ($start + $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Selanjutnya</a>';
+            }
+
+            echo '</p>';
+
+        }
+
+        /* END SECTION */
+
+        echo '<p>Total: ' . $total_row . ' data.</p>';
+
+        // Display sorting form:
+        echo '<br /><br />
+          <form name="sorting" action="lihat_pegawai.php" method="get">
+            <label>Tampilkan per halaman: </label>
+            <select name="display">
+              <option value="5"' . (($display == 5) ? ' selected="selected"' : '') . '>5</option>
+              <option value="10"' . (($display == 10) ? ' selected="selected"' : '') . '>10</option>
+              <option value="15"' . (($display == 15) ? ' selected="selected"' : '') . '>15</option>
+            </select>
+            <br />
+            <br />
+            <select name="c">
+              <option value="">-- Urut Berdasarkan --</option>
+              <option value="1"' . ((isset($_GET['c']) && ($_GET['c'] == 1)) ? ' selected="selected"' : '') . '>Nama</option>
+              <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
+              <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>No. Telepon</option>
+              <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>Alamat</option>
+              <option value="5"' . ((isset($_GET['c']) && ($_GET['c'] == 5)) ? ' selected="selected"' : '') . '>Email</option>
+            </select>
+            <select name="o">
+              <option value="">-- Urutkan dari --</option>
+              <option value="1"' . ((isset($_GET['o']) && ($_GET['o'] == 1)) ? ' selected="selected"' : '') . '>A-Z</option>
+              <option value="2"' . ((isset($_GET['o']) && ($_GET['o'] == 2)) ? ' selected="selected"' : '') . '>Z-A</option>
+            </select>';
+
+        if ($column && $keyword) {
+            echo '<input name="col" type="hidden" value="' . $column . '" /><input name="keyword" type="hidden" value="' . $keyword . '" />';
+        }
+
+        echo '<input name="submit" type="submit" value="Refresh" />
+          </form>';  // End of the form.
+
+    }  // End of IF ($total_row).
+
+    if ($search) {
+        echo '<p><a class="navlink" href="lihat_pegawai.php">Kembali</a></p>';
+    }
 
 } else {  // If query failed, display an error message, exit the script.
 
     echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan:<br />' . mysqli_error($dbc) . '</p>';  // Display an error message.
 
-    goto endDScript;
-
 }  // End of query result validation.
 
-// Create the table with some table headers:
-echo '<table border="0" cellspacing="5" cellpadding="5">
-  <tr>
-    <th>No</th>
-    <th>Nama</th>
-    <th>Jenis Kelamin</th>
-    <th>No. Telepon</th>
-    <th>Alamat</th>
-    <th>Email</th>
-  </tr>';
-
-$no = 1;  // For numbering the row.
-
-// Display all records:
-while ($row = mysqli_fetch_array($r, MYSQLI_ASSOC)) {  // Fetching each record to $row variable.
-
-    // Display the data in one row:
-    echo '<tr>
-        <td>' . $no . '</td>
-        <td>' . $row['nama_lengkap'] . '</td>
-        <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-Laki' : 'Perempuan') . '</td>
-        <td>' . $row['no_telepon'] . '</td>
-        <td>' . $row['alamat'] . '</td>
-        <td>' . $row['email'] . '</td>
-      </tr>';
-
-    $no++;  // Increment the number.
-
-}  // End of WHILE loop.
-
-echo '</table>';
+mysqli_free_result($r);  // Free up the resources.
 
 endDScript:
 
-if ($total_row > 0) {
-
-    // Display sorting form:
-    echo '<br /><br />
-      <form name="sorting" action="lihat_pegawai.php" method="get">
-        <select name="c">
-          <option>-- Urut Berdasarkan --</option>
-          <option value="1"' . ((isset($_GET['c']) && ($_GET['c'] == 1)) ? ' selected="selected"' : '') . '>Nama</option>
-          <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
-          <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>No. Telepon</option>
-          <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>Alamat</option>
-          <option value="5"' . ((isset($_GET['c']) && ($_GET['c'] == 5)) ? ' selected="selected"' : '') . '>Email</option>
-        </select>
-        <select name="o">
-          <option>-- Urutkan dari --</option>
-          <option value="1"' . ((isset($_GET['o']) && ($_GET['o'] == 1)) ? ' selected="selected"' : '') . '>A-Z</option>
-          <option value="2"' . ((isset($_GET['o']) && ($_GET['o'] == 2)) ? ' selected="selected"' : '') . '>Z-A</option>
-        </select>
-        <input name="submit" type="submit" value="Refresh" />
-      </form>';  // End of the form.
-
-}  // End of IF ($total_row).
-
-// Validate the search or sorting status:
-if ($search || $sort_status) {
-  echo '<p><a class="navlink" href="lihat_pegawai.php">Kembali Ke Awal</a></p>';
-}  // End of IF ($search || $sort_status).
-
 echo '<p><a class="navlink" href="input_pegawai.php">Tambah pegawai baru</a></p>';
-
-mysqli_free_result($r);  // Free up the resources.
 mysqli_close($dbc);  // Close the database connection.
 
 endScript:
