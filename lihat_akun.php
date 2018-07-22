@@ -49,10 +49,6 @@ if (!empty($_GET['col']) && !empty($_GET['keyword']) && in_array(strtolower($_GE
 
 } else {  // If both values are not set or invalid, represent them as flag variable.
 
-    // unset($_GET['col']);  // Destroy it.
-
-    // unset($_GET['keyword']);  // Destroy it.
-
     $column = $keyword = FALSE;  // Set flag variables to FALSE.
 
 }  // End of search validation.
@@ -146,23 +142,27 @@ if ($column && $keyword) {  // If both are true, continue.
 
 $q = "SELECT COUNT(*) FROM tb_akun $fq";
 $r = @mysqli_query($dbc, $q) or die('<h1>Terjadi kesalahan!</h1><p>Kesalahan:<br />' . mysqli_error($dbc) . '</p>');
-$row = mysqli_fetch_array($r, MYSQLI_NUM);
+list($total_row) = mysqli_fetch_array($r, MYSQLI_NUM);
 mysqli_free_result($r);
-$total_row = $row[0];
+
+if (!$search && ($total_row == 0)) {
+    echo '<p>Tidak ada data.</p>';
+    goto endDScript;
+}
 
 // Validate the START value for pagination:
-if (isset($_GET['start'])) {
+if (isset($_GET['start']) && check_start($_GET['start'], $display)) {
     $start = $_GET['start'];
 } else {
     $start = 0;
 }
 
-// Set the $pages value:
+/* // Set the $pages value:
 if ($total_row > $display) {
     $pages = ceil($total_row / $display);
 } else {
     $pages = 1;
-}
+} */
 
 $q = "SELECT * FROM tb_akun $fq ORDER BY $s $ot LIMIT $start, $display";  // Make the query.
 $r = @mysqli_query($dbc, $q);  // Execute the query.
@@ -173,7 +173,7 @@ if ($r) {  // If query succeed, check the returned row.
     // Dislay a form for searching.
     echo '<form name="pencarian" action="lihat_akun.php" method="get">
         <select name="col">
-          <option value="">-- Cari berdasarkan --</option>
+          <option value="">-- Filter berdasarkan --</option>
           <option value="1"';
 
     // Make the option -> EMAIL sticky.
@@ -208,29 +208,28 @@ if ($r) {  // If query succeed, check the returned row.
     // Complete the form and create the table.
     echo '>Kode Pegawai</option>
         </select>
-        <input name="keyword" type="text" placeholder="Masukkan kata kunci" value="' . ((isset($_GET['keyword'])) ? $_GET['keyword'] : '') . '" />';
-        
-    if (isset($_GET['display'])) {
-        echo '<input type="hidden" value="' . $_GET['display'] . '" />';
-    }
-
-
-
-        echo '<input name="submit" type="submit" value="Cari" />
+        <input name="keyword" type="text" placeholder="Masukkan kata kunci" value="' . ((isset($_GET['keyword'])) ? $_GET['keyword'] : '') . '" />
+        <input name="submit" type="submit" value="Filter" />
       </form><br />';
 
+    // Validatethe search:
     if ($search) {
-        echo '<h2>Hasil pencarian:</h2>
+        echo '<h2>Hasil filter:</h2>
           <h3>' . $hpc . ': ' . $keyword . '</h3>';
     }
 
     // Validate the returned row:
     if ($search && $total_row == 0) {  //  If no record was returned, display a message, exit the script.
-
-        echo '<p>Data tidak ditemukan.</p>
-          <p><a class="navlink" href="lihat_akun.php">Kembali</a></p>';  // Display a message.
+        echo '<p>Data tidak ditemukan.</p>';
             
     } else {  // If it has any record in return, show them.
+
+        // Set the $pages value:
+        if ($total_row > $display) {
+            $pages = ceil($total_row / $display);
+        } else {
+            $pages = 1;
+        }
 
         echo '<table border="0" cellpadding="5" cellspacing="5">
           <tr>
@@ -242,20 +241,14 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Hapus</th>
           </tr>';
 
-        $current_page = ($start / $display) + 1;
-
-        if ($current_page == 1) {
-            $no = 0;  // Variable for numbering.
-        } else {
-            $no = ($current_page * $display) - $display;
-        }
+        $no = $start + 1;
 
         // Display all records:
         while ($row = mysqli_fetch_array($r, MYSQLI_ASSOC)) {  // Fetching each record to $row variable.
 
             // Display the record:
             echo '<tr>
-              <td>' . ($no + 1) . '</td>
+              <td>' . $no . '</td>
               <td>' . $row['email'] . '</td>
               <td>' . $row['akses'] . '</td>
               <td>' . $row['kode_pegawai'] . '</td>
@@ -268,9 +261,23 @@ if ($r) {  // If query succeed, check the returned row.
 
         echo '</table>';  // Close the table.
 
-        // Display the pagination:
+        if (isset($_GET['s'])) {
+            $s = $_GET['s'];
+        } else {
+            $s = NULL;
+        }
+
+        if (isset($_GET['o'])) {
+            $o = $_GET['o'];
+        } else {
+            $o = NULL;
+        }
+
+        // PAGINATION SECTION :
         if ($pages > 1) {
             echo '<p>Halaman ';
+            
+            $current_page = ($start / $display) + 1;
 
             if ($current_page != 1) {
                 echo '<a class="navlink" href="lihat_akun.php?start=' . ($start - $display) . '&display=' . $display . '&col=' . $column . '&keyword='. $keyword . '&s=' . $s . '&o=' . $o . '">Sebelumnya</a> ';
@@ -289,9 +296,10 @@ if ($r) {  // If query succeed, check the returned row.
             }
 
             echo '</p>';
-        }
+        
+        }  // End of pagination.
 
-        echo '<p>Total: ' . $total_row . ' data ditemukan.</p><br />';  // Display the total of record.
+        echo '<p>Total: ' . $total_row . ' data.</p><br />';  // Display the total of record.
 
         // Validate the number of record:
         // If it has more than 1 record, show the sorting feature.
@@ -388,13 +396,23 @@ if ($r) {  // If query succeed, check the returned row.
 
             // Complete the option and the form.
             echo '>Z-A</option>
-                </select></p>
-                <p><input name="submit" type="submit" value="Refresh" /></p>
+                </select>';
+
+            if ($column && $keyword) {
+                echo '<input type="hidden" name="col" value="' . $column . '" />
+                  <input type="hidden" name="keyword" value="' . $keyword . '" />';
+            }
+
+            echo '<input name="submit" type="submit" value="Refresh" /></p>
               </form>';
 
         }  // End of total record validation.
 
     }  // End of returned row validation.
+
+    if ($search) {
+        echo '<p><a class="navlink" href="lihat_akun.php">Kembali</a></p>';
+    }
 
 } else {  // If query failed, display a message.
 
@@ -402,11 +420,11 @@ if ($r) {  // If query succeed, check the returned row.
 
 }  // End of query result validaton.
 
+mysqli_free_result($r);  // Free up the resources.
+
 endDScript:
 
 echo '<p><a href="buat_akun.php" class="navlink">Buat akun baru</a></p>';
-
-mysqli_free_result($r);  // Free up the resources.
 
 mysqli_close($dbc);  // Close the database connection.
 
