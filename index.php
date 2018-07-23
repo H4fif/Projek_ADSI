@@ -14,7 +14,7 @@ if (isset($_SESSION['user_id'])) {  // If the user has logged in, show a welcome
 } else {  // If the user has not logged in yet, show a message to login.
 
     // Show a message to login:
-    echo '<p>Silakan <a href="login.php">Login</a> untuk menggunakan website ini.</p>'; 
+    echo '<p>Silakan <a class="navlink" href="login.php">Login</a> untuk menggunakan website ini.</p>'; 
 
 }  // End of user validation.
 
