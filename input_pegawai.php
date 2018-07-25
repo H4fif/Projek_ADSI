@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validate nama lengnkap:
     // It should at least contain 2 characters or 100 characters at maximum.
-    if (empty($val['nama_lengkap']) || !preg_match('/^(\w){2,100}$/', $val['nama_lengkap'])) {
+    if (empty($val['nama_lengkap']) || !preg_match('/^[\w+|\056*|\'*|\040*]{2,100}$/', $val['nama_lengkap'])) {
         
         $errors[] = 'Nama tidak valid!';  // Set an error message.
     
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Validate no telepon:
     // It should at least contain 5 digits or 15 digits at maximum.
-    if (empty($val['no_telp']) || !is_numeric($val['no_telp']) || !preg_match('/^(\d){5,15}$/', $val['no_telp'])) {
+    if (empty($val['no_telp']) || !is_numeric($val['no_telp']) || (strlen($val['no_telp']) < 3) || (strlen($val['no_telp']) > 15)) {
         
         $errors[] = 'No telepon tidak valid!';  // Set an error message.
 
@@ -54,14 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = 'Alamat tidak valid!';  // Set an error message.
     
     }  // End of alamat validation.
-
-    // Validate email:
-    // It should match the formatted email.
-    if (empty($val['email']) || !filter_var($val['email'], FILTER_VALIDATE_EMAIL)) {
-        
-        $errors[] = 'Email tidak valid!';  // Set an error message.
-    
-    }  // End of email validation.
 
     // Validate $errors variable:
     if (!empty($errors)) {  // If there is any error occurred, show the error message.
@@ -90,36 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $a = mysqli_real_escape_string($dbc, $val['alamat']);  // Escape the alamat.
 
-        $e = mysqli_real_escape_string($dbc, $val['email']);  // Escape the email.
-
-        $q = "SELECT * FROM tb_pegawai WHERE email = '$e'";  // Make the query to get the user with the same email.
-        
-        $r = @mysqli_query($dbc, $q);  // Execute the query.
-
-        // Validate the query result:
-        if ($r) {  // If query succeed, check the returned row.
-
-            // Validate the returned row:
-            if (mysqli_num_rows($r) != 0) {  // If there is data with the same email, set an error message.
-
-                $errors[] = '<h1>Terjadi kesalahan!</h1><p>Email sudah terdaftar!</p>';  // Set an error message.
-            
-            }  // End of returned row validation.
-
-        } else {  // If query failed, show en error message, exit the script.
-
-            echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan:<br />' . mysqli_error($dbc) . '</p>';  // Show an error message.
-            
-            mysqli_free_result($r);  // Free up the resources.
-          
-            mysqli_close($dbc);  // Close the database connection.
-
-            include('includes/footer.html');  // Include the footer.
-
-            exit();  // Exit the script.
-        
-        }  // End of query result validation.
-
         // Make the query:
         $q = "SELECT * FROM tb_pegawai WHERE nama_lengkap = '$nl' AND jenis_kelamin = '$jk' AND no_telepon = '$nt'";
         
@@ -138,16 +100,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {  // If query failed, show an error message.
 
             echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan:<br />' . mysqli_error($dbc) . '</p>';  // Show an error message.
-            
-            mysqli_free_result($r);  // Free up the resources.
-
-            mysqli_close($dbc);  // Close the database connection.
-
-            include('includes/footer.html');  // Include the footer.
-
-            exit();  // Exit the script.
-
+            goto endScript;
         }  // End of query result validation.
+        mysqli_free_result($r);  // Free up the resources.
 
         // Validate the $errors variable:
         if (!empty($errors)) {  // If there is any error occurred, show them.
@@ -162,11 +117,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }  // End of foreach loop.
 
             echo '</p>';  // End of the paragraph.
+            // goto inputForm;
 
         } else {  // If there is no error occurred, continue the script.
 
             // Make the query to validate the user:
-            $q = "INSERT INTO tb_pegawai (nama_lengkap, jenis_kelamin, no_telepon, alamat, email) VALUES ('$nl', '$jk', '$nt', '$a', '$e')";
+            $q = "INSERT INTO tb_pegawai (nama_lengkap, jenis_kelamin, no_telepon, alamat) VALUES ('$nl', '$jk', '$nt', '$a')";
             
             $r = @mysqli_query($dbc, $q);  // Execute the query.
             
@@ -177,13 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (mysqli_affected_rows($dbc) == 1) {  // If data succeed to be saved, display a message, exit the script.
                     
                     echo '<p>Data berhasil disimpan.</p>';  // Display a message.
-                    
-                    mysqli_close($dbc);  // Close the database connection.
-
-                    include('includes/footer.html');  // Include the footer.
-
-                    exit();  // Exit the script.
-
+                    goto endScript;
                 } else {  // If data failed to be saved, display a message.
 
                     echo '<p>Terjadi kesalahan pada sistem saat menyimpan data.</p>';  // Display a message.
@@ -198,21 +148,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         }  // End of $errors validation.
     
+        mysqli_close($dbc);
+        unset($_POST);
     }  // End of $errors validation.
+} //else {
+  // inputForm:
+    // Create the form:
+    echo '<form name="input_data_pegawai" action="input_pegawai.php" method="post">
+        <p>Nama Lengkap: <input name="nama_lengkap" type="text" minlength="2" maxlength="100" required="required"' . ((isset($val['nama_lengkap']) ? 'value="' . $val['nama_lengkap'] . '"' : '')) . '" /></p>
+        <p>Jenis Kelamin:
+          <input name="jenis_kelamin" type="radio" value="L" required="required"' . ((isset($val['jenis_kelamin']) && ($val['jenis_kelamin'] == 'L')) ? ' checked="checked"' : '') .
+          '/>Laki-Laki <input name="jenis_kelamin" type="radio" value="P" required="required"' . ((isset($val['jenis_kelamin']) && ($val['jenis_kelamin'] == 'P')) ? ' checked="checked"' : '') . '/>Perempuan</p>
+        <p>No. Telepon: <input name="no_telp" type="text" minlength="5" maxlength="15" required="required"' . ((isset($val['no_telp'])) ? ' value="' . $val['no_telp'] . '"' : '') . ' /></p>
+        <p>Alamat: <textarea name="alamat" cols="40" rows="5" required="required">' . ((isset($val['alamat'])) ? $val['alamat'] : '') . '</textarea></p>
+        <p><input name="submit" type="submit" value="Simpan" /></p>
+      </form>';
+// }  // End of FORM submission.
 
-}  // End of submission form validation.
+endScript:
 
-// Create the form:
-echo '<form name="input_data_pegawai" action="input_pegawai.php" method="post">
-    <p>Nama Lengkap: <input name="nama_lengkap" type="text" minlength="2" maxlength="100" required="required"' . ((isset($val['nama_lengkap']) ? 'value="' . $val['nama_lengkap'] . '"' : '')) . '" /></p>
-    <p>Jenis Kelamin:
-      <input name="jenis_kelamin" type="radio" value="L" required="required"' . ((isset($val['jenis_kelamin']) && ($val['jenis_kelamin'] == 'L')) ? ' checked="checked"' : '') .
-      '/>Laki-Laki <input name="jenis_kelamin" type="radio" value="P" required="required"' . ((isset($val['jenis_kelamin']) && ($val['jenis_kelamin'] == 'P')) ? ' checked="checked"' : '') . '/>Perempuan</p>
-    <p>No. Telepon: <input name="no_telp" type="text" minlength="5" maxlength="15" required="required"' . ((isset($val['no_telp'])) ? ' value="' . $val['no_telp'] . '"' : '') . ' /></p>
-    <p>Email: <input name="email" type="email" minlength="6" maxlength="40" required="required"' . ((isset($val['email'])) ? ' value="' . $val['email'] . '"' : '') . ' /></p>
-    <p>Alamat: <textarea name="alamat" cols="40" rows="5" required="required">' . ((isset($val['alamat'])) ? $val['alamat'] : '') . '</textarea></p>
-    <p><input name="submit" type="submit" value="Simpan" /></p>
-  </form>';
-
+echo '<p><a class="navlink" href="lihat_pegawai.php">Kembali</a></p>';
 include('includes/footer.html');  // Include the footer.
 ?>

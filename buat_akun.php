@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }  // End of email validation.
 
     // Validate the kata sandi:
-    if (empty($val['kata_sandi']) || !preg_match('/^(\w){4,20}$/', $val['kata_sandi'])) {  // If kata sandi is empty, or have length < 4 or length > 20, set an error message.
+    if (empty($val['kata_sandi']) || (strlen($val['kata_sandi']) < 4)) {  // If kata sandi is empty, or have length < 4 or length > 20, set an error message.
 
         $errors[] = 'Kata sandi tidak valid!';  // Add an error message to $errors variable.
 
@@ -266,5 +266,6 @@ mysqli_free_result($r_tp);  // Free up the resources.
 
 mysqli_close($dbc);  // Close the database connection.
 
+echo '<p><a class="navlink" href="lihat_akun.php">Kembali</a></p>';
 include('includes/footer.html');  // Include the footer.
 ?>

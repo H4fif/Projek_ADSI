@@ -128,7 +128,7 @@ if ($column && $keyword) {  // If both are true, continue.
 
     $colkey = mysqli_real_escape_string($dbc, $colkey);  // Escape the $colkey.
 
-    $fq = "WHERE $colkey LIKE '%$keyword%'";  // Set the addition text for query.
+    $fq = " WHERE $colkey LIKE '%$keyword%'";  // Set the addition text for query.
 
     $search = TRUE;  // Flag variable.
 
@@ -215,7 +215,7 @@ if ($r) {  // If query succeed, check the returned row.
     // Validatethe search:
     if ($search) {
         echo '<h2>Hasil filter:</h2>
-          <h3>' . $hpc . ': ' . $keyword . '</h3>';
+          <h3>' . $hpc . ': ' . stripslashes($keyword) . '</h3>';
     }
 
     // Validate the returned row:

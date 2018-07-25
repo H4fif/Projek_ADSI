@@ -9,8 +9,6 @@ if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] !
 
     header('Location: index.php');
 
-    goto endScript;
-
 }  // End of user validation.
 
 // Validate the input id:
@@ -19,9 +17,9 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 } elseif (isset($_POST['id']) && is_numeric($_POST['id'])) {
     $id = $_POST['id'];
 } else {
-    echo '<h1>Terjadi kesalahan!</h1><p>Terjadi kesalahan saat mencoba mengakses halaman ini.</p>';
-
-    goto endScript;
+    errorMessage:
+      echo '<p>Terjadi kesalahan saat mencoba mengakses halaman ini.</p>';
+      goto endScript;
 
 }  // End of id validation.
 
@@ -33,28 +31,35 @@ $r2 = @mysqli_query($dbc, $q);
 if ($r2) {
     if (mysqli_num_rows($r2) == 1) {
         $row = mysqli_fetch_array($r2, MYSQLI_ASSOC);
+        mysqli_free_result($r2);
     } else {
-        echo '<h1>Terjadi kesalahan!</h1><p>Tidak dapat mengaitkan akun manapun dengan id ' . $id . '</p>';
-        goto endDScript;
+        // echo '<h1>Terjadi kesalahan!</h1><p>Tidak dapat mengaitkan akun manapun dengan id ' . $id . '</p>';
+        // goto endDScript;
+        goto errorMessage;
     }
 } else {
-    echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan saat menjalan query: ' . mysqli_error($dbc) . '</p>';
+    echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan saat menjalankan query: ' . mysqli_error($dbc) . '</p>';
     goto endDScript;
 }
 
 // Validate the form submission:
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $q = "DELETE FROM tb_akun WHERE kode_akun = $id LIMIT 1";
-    $r = @mysqli_query($dbc, $q);
-    if ($r) {
-        if (mysqli_affected_rows($dbc) == 1) {
-            echo '<h1>Data berhasil dihapus.</h1>';
+
+    if ($_POST['konfirmasi'] == '1') {
+        $q = "DELETE FROM tb_akun WHERE kode_akun = $id LIMIT 1";
+        $r = @mysqli_query($dbc, $q);
+        if ($r) {
+            if (mysqli_affected_rows($dbc) == 1) {
+                echo '<p>Data berhasil dihapus.</p>';
+            } else {
+                echo '<p>Tidak ada perubahan yang terjadi.</p>';
+            }
         } else {
-            echo '<h1>Tidak ada perubahan yang terjadi.</h1>';
-        }
+            echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan saat menjalankan query: ' . mysqli_error($dbc) . '</p>';
+        }  // End of IF ($r).
     } else {
-        echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan saat menjalankan query: ' . mysqli_error($dbc) . '</p>';
-    }
+        echo '<p>Tidak ada perubahan yang terjadi.</p>';
+    }  // End of IF ($_POST['konfirmasi'] == '1').
 } else {
     echo '<form action="hapus_akun.php" method="post">
         <h1>Hapus akun : ' . $id . ' ?</h1>
@@ -73,10 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 endDScript:
 
-mysqli_free_result($r2);
 mysqli_close($dbc);
 
 endScript:
+echo '<p><a class="navlink" href="lihat_akun.php">Kembali</a></p>';
 
 include('includes/footer.html');
 ?>

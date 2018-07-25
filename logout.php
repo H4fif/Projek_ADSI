@@ -7,6 +7,8 @@ session_start();  // Start the session.
 if (!isset($_SESSION['agent'], $_SESSION['user_id']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT']))) {
 
     header('Location: index.php');  // Redirect the user to homepage.
+    ob_clean();
+    exit;
 
 } else {  // If the right user access this page, destroy the session and cookie.
 

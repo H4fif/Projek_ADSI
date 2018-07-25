@@ -5,9 +5,11 @@
  * - starts the session.
  */
 
+ob_start();  // Start Output Buffering.
+session_start();  // Start the session.
+
 header('Content-Type: text/html; charset=UTF-8');  // Indicate the encoding:
 
-session_start();  // Start the session.
 ?>
 <!doctype html>
 <html>

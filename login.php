@@ -6,7 +6,7 @@
 if (isset($_SESSION['user_id'])) {
     
     header('Location: index.php');  // Redirect the user to homepage.
-
+    ob_clean();
     exit();  // Exit the script.
 
 }  // End of user validation.
@@ -79,8 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 header('Location: http://localhost/Projek ADSI/');  // Redirect the user to homepage.
 
-                include('includes/footer.html');  // Include the footer.
-
+                ob_clean();
                 exit();  // Exit the script.
 
             } else {  // If there is no match, display a message:

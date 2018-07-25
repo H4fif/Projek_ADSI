@@ -73,11 +73,11 @@ $cari_error = FALSE;
 // If both values have a valid value, secure them.
 if (empty($_GET['col']) || empty($_GET['keyword']) || !in_array(strtolower($_GET['col']), ['1', '2', '3', '4'])) {
     
-    $column = $keyword = FALSE;  // Set flag variables to FALSE.
+    $col = $keyword = FALSE;  // Set flag variables to FALSE.
 
 } else {  // If both values are not set or invalid, represent them as flag variable.
 
-    $column = trim(htmlentities(strip_tags($_GET['col'])));  // Secure the $_GET['col'] value.
+    $col = trim(htmlentities(strip_tags($_GET['col'])));  // Secure the $_GET['col'] value.
 
     $keyword = trim(htmlentities(strip_tags($_GET['keyword'])));  // Secure the $_GET['keyword'] value.
 
@@ -85,7 +85,7 @@ if (empty($_GET['col']) || empty($_GET['keyword']) || !in_array(strtolower($_GET
 
 // SORTING validation:
 // If both variable ($c & $o) have valid values, then get them:
-if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4, 5]) && in_array($_GET['o'], [1, 2])) {
+if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4]) && in_array($_GET['o'], [1, 2])) {
     $c = $_GET['c'];
     $o = $_GET['o'];
     $sort_status = true;
@@ -96,15 +96,13 @@ if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4, 5]) && in
 
 // Validate the $c:
 switch ($c) {
+    case 1 : $column = 'nama_lengkap';
+             break;
     case 2 : $column = 'jenis_kelamin';
              break;
     case 3 : $column = 'no_telepon';
              break;
     case 4 : $column = 'alamat';
-             break;
-    case 5 : $column = 'email';
-             break;
-    case 1 : $column = 'nama_lengkap';
              break;
 
 }  // End of SWITCH ($c).
@@ -119,8 +117,9 @@ if ($o == 2) {
 
 require('mysqli_connect.php');  // Need the database connection.
 
-if ($column && $keyword) {
-    switch ($column) {
+// Validate the search input:
+if ($col && $keyword) {
+    switch ($col) {
         case '1' : $colkey = 'nama_lengkap';
                    $hpc = 'Nama';
                    break;
@@ -128,10 +127,7 @@ if ($column && $keyword) {
                    $hpc = 'No. Telepon';
                    break;
         case '3' : $colkey = 'alamat';
-                   $hpc = 'Alamat';
-                   break;
-        case '4' : $colkey = 'email';
-                   $hpc = 'Email';
+                   $hpc = ucwords($colkey);
                    break;
     }  // End of SWITCH ($column).
 
@@ -145,7 +141,7 @@ if ($column && $keyword) {
     $fq = '';
     $search = FALSE;
 
-}  // End od IF ($column).
+}  // End od IF search validation.
 
 $q = "SELECT COUNT(*) FROM tb_pegawai $fq";
 $r = @mysqli_query($dbc, $q) or die('<h1>Terjadi kesalahan!</h1><p>Kesalahan: ' . mysqli_error($dbc) . '</p>');
@@ -168,7 +164,6 @@ if ($r) {  // If query succeed, check the returned row.
         <option value="1"' . ((isset($_GET['col']) && ($_GET['col'] == '1')) ? ' selected="selected"' : '') . '>Nama</option>
         <option value="2"' . ((isset($_GET['col']) && ($_GET['col'] == '2')) ? ' selected="selected"' : '') . '>No. Telepon</option>
         <option value="3"' . ((isset($_GET['col']) && ($_GET['col'] == '3')) ? ' selected="selected"' : '') . '>Alamat</option>
-        <option value="4"' . ((isset($_GET['col']) && ($_GET['col'] == '4')) ? ' selected="selected"' : '') . '>Email</option>
       </select>
       <input name="keyword" placeholder="Masukkan kata kunci" type="text" minlength="1" maxlength="255" value="' . ((isset($_GET['keyword']) ? $_GET['keyword'] : '')) . '" />
       <input name="submit" type="submit" value="Filter" />
@@ -176,7 +171,7 @@ if ($r) {  // If query succeed, check the returned row.
 
     if ($search) {
         echo '<h2>Hasil filter:</h2>
-          <h3>' . $hpc . ': ' . $keyword . '</h3>';
+          <h3>' . $hpc . ': ' . stripslashes($keyword) . '</h3>';
     }
 
     // Validate the reurned row:
@@ -198,7 +193,6 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Jenis Kelamin</th>
             <th>No. Telepon</th>
             <th>Alamat</th>
-            <th>Email</th>
             <th>Edit</th>
             <th>Hapus</th>
           </tr>';
@@ -216,9 +210,8 @@ if ($r) {  // If query succeed, check the returned row.
                 <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-Laki' : 'Perempuan') . '</td>
                 <td>' . $row['no_telepon'] . '</td>
                 <td>' . $row['alamat'] . '</td>
-                <td>' . $row['email'] . '</td>
-                <td><a class="navlink" href="#">Edit</a></td>
-                <td><a class="navlink" href="#">Hapus</a></td>
+                <td><a class="navlink" href="edit_pegawai.php?id=' . $row['kode_pegawai'] . '">Edit</a></td>
+                <td><a class="navlink" href="hapus_pegawai.php?id=' . $row['kode_pegawai'] . '">Hapus</a></td>
               </tr>';
 
             $no++;  // Increment the number.
@@ -228,6 +221,18 @@ if ($r) {  // If query succeed, check the returned row.
         echo '</table>';
         
         /* PAGINATION SECTION */
+
+        if (isset($_GET['c'])) {
+            $c = $_GET['c'];
+        } else {
+            $c = NULL;
+        }
+
+        if (isset($_GET['o'])) {
+            $o = $_GET['o'];
+        } else {
+            $o = NULL;
+        }
 
         if ($total_row > $display) {
           $page = ceil($total_row / $display);
@@ -241,7 +246,7 @@ if ($r) {  // If query succeed, check the returned row.
 
             // Prev button:
             if ($current_page != 1) {
-                echo '<a class="navlink" href="lihat_pegawai.php?col=' . $column . '&keyword=' . $keyword . '&start=' . ($start - $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Sebelumnya</a> ';
+                echo '<a class="navlink" href="lihat_pegawai.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($start - $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Sebelumnya</a> ';
             }
 
             // Numbered link page:
@@ -250,14 +255,14 @@ if ($r) {  // If query succeed, check the returned row.
                 if ($i == $current_page) {
                     echo $i . ' ';
                 } else {
-                    echo '<a class="navlink" href="lihat_pegawai.php?col=' . $column . '&keyword=' . $keyword . '&start=' . ($display * ($i - 1)) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">' . $i . ' </a>';
+                    echo '<a class="navlink" href="lihat_pegawai.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($display * ($i - 1)) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">' . $i . ' </a>';
                 }  // End of IF.
 
             }  // End of FOR loop.
 
             // Next button:
             if ($current_page != $page) {
-                echo ' <a class="navlink" href="lihat_pegawai.php?col=' . $column . '&keyword=' . $keyword . '&start=' . ($start + $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Selanjutnya</a>';
+                echo ' <a class="navlink" href="lihat_pegawai.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($start + $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Selanjutnya</a>';
             }
 
             echo '</p>';
@@ -285,7 +290,6 @@ if ($r) {  // If query succeed, check the returned row.
               <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
               <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>No. Telepon</option>
               <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>Alamat</option>
-              <option value="5"' . ((isset($_GET['c']) && ($_GET['c'] == 5)) ? ' selected="selected"' : '') . '>Email</option>
             </select>
             <select name="o">
               <option value="">-- Urutkan dari --</option>
@@ -293,8 +297,8 @@ if ($r) {  // If query succeed, check the returned row.
               <option value="2"' . ((isset($_GET['o']) && ($_GET['o'] == 2)) ? ' selected="selected"' : '') . '>Z-A</option>
             </select>';
 
-        if ($column && $keyword) {
-            echo '<input name="col" type="hidden" value="' . $column . '" /><input name="keyword" type="hidden" value="' . $keyword . '" />';
+        if ($col && $keyword) {
+            echo '<input name="col" type="hidden" value="' . $col . '" /><input name="keyword" type="hidden" value="' . $keyword . '" />';
         }
 
         echo '<input name="submit" type="submit" value="Refresh" />
