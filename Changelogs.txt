@@ -6,7 +6,6 @@ Changelogs:
 
 21 July 2018
 - fix pagination feature in lihat_pegawai.php
-- complete pagination feature in lihat_pegawai.php
 
 22 July 2018
 - fix bugs in searching feature in lihat_pegawai.php
@@ -22,6 +21,8 @@ Changelogs:
 25 July 2018
 - add new feature, hapus pegawai > hapus_pegawai.php
 - fix pagination feature in lihat_pegawai.php
-- update kata sandi validation in buat_akun.php, now kata sandi can contain words, numbers, characters.
-- update kata sandi validation in edit_akun.php, now kata sandi can contain words, numbers, characters.
-- fix bug, can insert name with special characters ( . and ' ) in input_pegawai.php.
+- update kata sandi validation in buat_akun.php, now kata sandi can contain words, numbers, characters
+- update kata sandi validation in edit_akun.php, now kata sandi can contain words, numbers, characters
+- fix bug, can insert name with special characters ( . and ' ) in input_pegawai.php
+- add edit feature to data pegawai in edit_pegawai.php
+- fix bug in edit_akun.php

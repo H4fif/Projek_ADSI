@@ -49,8 +49,8 @@ if ($r) {
 
 // Validate the FORM SUBMISSION:
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $val = array_map('striptags', $_POST);
-    $val = array_map('htmlentities', val);
+    $val = array_map('strip_tags', $_POST);
+    $val = array_map('htmlentities', $val);
     $val = array_map('trim', $val);
 
     $errors = [];
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }  // End IF.
 
     // Validate jenis kelamin:
-    if (empty($val['jk']) || !is_numeric($val['jk']) || !in_array($val['jk'], [1, 2])) {
+    if (empty($val['jk']) || !in_array($val['jk'], ['L', 'P'])) {
         $errors[] = 'Jenis kelamin tidak valid!';
     }  // End IF.
 
@@ -82,15 +82,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo ' - ' . $e . '<br />';
         }
         echo '</p>';
+        goto formEdit;
     } else {
-        require('mysqli_connect.php');
-
         $nl = mysqli_real_escape_string($dbc, $val['nama']);
         $jk = mysqli_real_escape_string($dbc, $val['jk']);
         $nt = mysqli_real_escape_string($dbc, $val['no_telp']);
         $a = mysqli_real_escape_string($dbc, $val['alamat']);
 
-        $q = "SELECT * FROM tb_pegawai WHERE (nama_lengkap = '$nl' AND jenis_kelamin = '$jk' AND alamat = '$a') OR (no_telepon = '$nt')";
+        $q = "SELECT * FROM tb_pegawai WHERE (kode_pegawai != $id AND ((nama_lengkap = '$nl' AND jenis_kelamin = '$jk' AND alamat = '$a') OR (no_telepon = '$nt')))";
+
         $r = @mysqli_query($dbc, $q);
         if ($r) {
             if (mysqli_num_rows($r) != 0) {
@@ -112,29 +112,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             echo '<h2>Terjadi kesalahan sistem!</h2><p>Query: ' . mysqli_error($dbc) . '</p>';
         }  // End of IF ($r).
-        mysqli_close($dbc);
     }  // End of IF (!empty($error)).
-
 } else {
 
 // UPDATE THIS SOON!
 
 // Make the form sticky
   formEdit:
-    echo '<form action="edit_pegawai" method="post">
-        <p>Nama: <input name="nama" type="text" minlength="2" maxlength="100" /></p>
-        <p>Jenis Kelamin: <input name="jk" type="radio" value="L" />Laki-laki <input name="jk" type="radio" value="P" />Perempuan</p>
-        <p>No. Telepon: <input name="no_telp" type="text" minlength="3" maxlength="15" /></p>
-        <p>Alamat: <textarea name="alamat" row="6" col="50"></textarea></p>
+
+    // Make the nama sticky:
+    if (isset($val['nama'])) {
+        $stNama = $val['nama'];
+    } else {
+        $stNama = $row['nama_lengkap'];
+    }
+
+    // Make the jenis kelamin sticky:
+    if (isset($val['jk'])) {
+        $stJk = $val['jk'];
+    } else {
+        $stJk = $row['jenis_kelamin'];
+    }
+
+    // Make the no_telp sticky:
+    if (isset($val['no_telp'])) {
+        $stNt = $val['no_telp'];
+    } else {
+        $stNt = $row['no_telepon'];
+    }
+
+    // Make the alamat sticky:
+    if (isset($val['alamat'])) {
+        $stA = $val['alamat'];
+    } else {
+        $stA = $row['alamat'];
+    }
+
+    echo '<form action="edit_pegawai.php" method="post">
+        <p>Nama: <input name="nama" type="text" minlength="2" maxlength="100" value="' . $stNama . '" /></p>
+        <p>Jenis Kelamin: <input name="jk" type="radio" value="L" ' . (($stJk == 'L') ? ' checked="checked"' : '') . '/>Laki-laki <input name="jk" type="radio" value="P" ' . (($stJk == 'P') ? ' checked="checked"' : '') . ' />Perempuan</p>
+        <p>No. Telepon: <input name="no_telp" type="text" minlength="3" maxlength="15" value="' . $stNt . '" /></p>
+        <p>Alamat: <textarea name="alamat" row="6" col="50">' . $stA . '</textarea></p>
         <p><input name="id" type="hidden" value="' . $id . '" /></p>
-        <p<input name="submit" type="submit" value="Simpan" /></p>
+        <p><input name="submit" type="submit" value="Simpan" /></p>
       </form>';
 }
 
-
-
 endScript:
 
+mysqli_close($dbc);
 echo '<p><a class="navlink" href="lihat_pegawai.php">Kembali</a></p>';
 
 include('includes/footer.html');
