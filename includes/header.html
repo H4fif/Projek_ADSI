@@ -54,15 +54,12 @@ header('Content-Type: text/html; charset=UTF-8');  // Indicate the encoding:
             // Diplay links based upon login status:
             if (isset($_SESSION['user_level'])) {
 
-                /*if ($_SESSION['user_level'] == 'administrator') {
-                    echo '<a href="buat_akun.php" class="navlink">Buat Akun</a><br />
-                      <a href="edit_akun.php?id=' . $_SESSION['user_id'] . '" class="navlink">Edit Akun</a><br />
-                      <a href="input_pegawai.php" class="navlink">Tambah Pegawai</a><br />';
-                }*/
+                if ($_SESSION['user_level'] == 'administrator') {
+                    echo '<a href="lihat_akun.php" class="navlink">Data Akun</a><br />';
+                }
 
                 if (in_array($_SESSION['user_level'], ['administrator', 'manager'])) {
-                      echo '<a href="lihat_akun.php" class="navlink">Data Akun</a><br />
-                      <a href="lihat_pegawai.php" class="navlink">Data Pegawai</a><br />
+                      echo '<a href="lihat_pegawai.php" class="navlink">Data Pegawai</a><br />
                       <a href="lihat_supplier.php" class="navlink">Data Supplier</a><br />
                       <a href="lihat_pelanggan.php" class="navlink">Data Pelanggan</a><br />';
                 }

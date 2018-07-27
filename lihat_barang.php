@@ -9,9 +9,9 @@ include('includes/header.html');
 // Only user with access as administratorISTRATOR OR MANAGER can access this page.
 // If the user does not have the right access to this page, redirect the user:
 if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || !in_array($_SESSION['user_level'], ['administrator', 'manager'])) {
-
+    ob_end_clean();
     header('Location: index.php');  // Redirect the user to homepage.
-
+    exit;
 }  // End of user validation.
 
 require('mysqli_connect.php');  // Need the database connection:

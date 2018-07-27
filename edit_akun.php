@@ -1,15 +1,16 @@
 <?php  # Script edit_akun.php
 // This page for editing existing akun.
 
-$page_title = 'Edit Akun';
+$page_title = 'Ubah Akun';
 include('includes/header.html');
 
 // Validate the user.
 // Only user that has logged in can access this page.
 // If the user does not have the right access to this page, redirect the user:
 if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || ($_SESSION['user_level'] != 'administrator')) {
+    ob_end_clean();
     header('Location: index.php');  // Redirect the user to homepage.
-    goto endScript;
+    exit;
 }  // End of user validation.
 
 // Validate the akun ID.

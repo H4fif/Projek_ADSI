@@ -1,25 +1,14 @@
 <?php # Script edit_pegawai.php
 // This script update data pegawai.
 
-// testing section
-
-/* $a = array('a1' => '', 'a2' => '');
-$a = array_map('empty', $a);
-// $a1 = array();
-
-var_dump(empty($a));
-
-exit; */
-
-// end of testing section
-
-
-$page_title = 'Edit Data Pegawai';
+$page_title = ' Data Pegawai';
 include('includes/header.html');
 
 // User validation:
 if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT']))) {
+    ob_end_clean();
     header('Location: index.php');
+    exit;
 }  // End of IF user validation.
 
 // Validate the USER ID:
@@ -82,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo ' - ' . $e . '<br />';
         }
         echo '</p>';
-        goto formEdit;
+        goto form;
     } else {
         $nl = mysqli_real_escape_string($dbc, $val['nama']);
         $jk = mysqli_real_escape_string($dbc, $val['jk']);
@@ -118,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // UPDATE THIS SOON!
 
 // Make the form sticky
-  formEdit:
+  form:
 
     // Make the nama sticky:
     if (isset($val['nama'])) {

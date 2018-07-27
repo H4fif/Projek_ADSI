@@ -7,8 +7,9 @@ include('includes/header.html');
 // Validate the user.
 if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT']) || ($_SESSION['user_level'] != 'administrator'))) {
 
+    ob_end_clean();
     header('Location: index.php');
-
+    exit;
 }  // End of user validation.
 
 // Validate the input id:

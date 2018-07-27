@@ -7,7 +7,7 @@
 // - Sorting (done).
 // - Searching & sorting combined (done).
 // - Pagination (to do).
-// - Edit.
+// - .
 // - Delete.
 
 /* END FEATURE LIST */
@@ -42,9 +42,9 @@ include('includes/header.html');
 // Only user with access as administratorISTRATOR OR MANAGER can access this page.
 // If the user does not have the right access to this page, redirect the user:
 if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || (!in_array($_SESSION['user_level'], ['administrator', 'manager']))) {
-
+    ob_end_clean();
     header('Location: index.php');  // Rediret the user to homepage.
-
+    exit;
 }  // End of user validation.
 
 // Validate the display:
@@ -193,7 +193,7 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Jenis Kelamin</th>
             <th>No. Telepon</th>
             <th>Alamat</th>
-            <th>Edit</th>
+            <th>Ubah</th>
             <th>Hapus</th>
           </tr>';
 
@@ -210,7 +210,7 @@ if ($r) {  // If query succeed, check the returned row.
                 <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-Laki' : 'Perempuan') . '</td>
                 <td>' . $row['no_telepon'] . '</td>
                 <td>' . $row['alamat'] . '</td>
-                <td><a class="navlink" href="edit_pegawai.php?id=' . $row['kode_pegawai'] . '">Edit</a></td>
+                <td><a class="navlink" href="edit_pegawai.php?id=' . $row['kode_pegawai'] . '">Ubah</a></td>
                 <td><a class="navlink" href="hapus_pegawai.php?id=' . $row['kode_pegawai'] . '">Hapus</a></td>
               </tr>';
 
@@ -271,38 +271,37 @@ if ($r) {  // If query succeed, check the returned row.
 
         /* END SECTION */
 
-        echo '<p>Total: ' . $total_row . ' data.</p>';
+        echo '<p>Total: ' . $total_row . ' data.</p><br />';
 
         // Display sorting form:
-        echo '<br /><br />
-          <form name="sorting" action="lihat_pegawai.php" method="get">
-            <label>Tampilkan per halaman: </label>
-            <select name="display">
-              <option value="5"' . (($display == 5) ? ' selected="selected"' : '') . '>5</option>
-              <option value="10"' . (($display == 10) ? ' selected="selected"' : '') . '>10</option>
-              <option value="15"' . (($display == 15) ? ' selected="selected"' : '') . '>15</option>
-            </select>
-            <br />
-            <br />
-            <select name="c">
-              <option value="">-- Urut Berdasarkan --</option>
-              <option value="1"' . ((isset($_GET['c']) && ($_GET['c'] == 1)) ? ' selected="selected"' : '') . '>Nama</option>
-              <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
-              <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>No. Telepon</option>
-              <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>Alamat</option>
-            </select>
-            <select name="o">
-              <option value="">-- Urutkan dari --</option>
-              <option value="1"' . ((isset($_GET['o']) && ($_GET['o'] == 1)) ? ' selected="selected"' : '') . '>A-Z</option>
-              <option value="2"' . ((isset($_GET['o']) && ($_GET['o'] == 2)) ? ' selected="selected"' : '') . '>Z-A</option>
-            </select>';
+        echo '<form name="sorting" action="lihat_pegawai.php" method="get">
+            <p>
+              <label>Tampilkan per halaman: </label>
+              <select name="display">
+                <option value="5"' . (($display == 5) ? ' selected="selected"' : '') . '>5</option>
+                <option value="10"' . (($display == 10) ? ' selected="selected"' : '') . '>10</option>
+                <option value="15"' . (($display == 15) ? ' selected="selected"' : '') . '>15</option>
+              </select>
+            </p>
+            <p>
+              <select name="c">
+                <option value="">-- Urut Berdasarkan --</option>
+                <option value="1"' . ((isset($_GET['c']) && ($_GET['c'] == 1)) ? ' selected="selected"' : '') . '>Nama</option>
+                <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
+                <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>No. Telepon</option>
+                <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>Alamat</option>
+              </select>
+              <select name="o">
+                <option value="">-- Urutkan dari --</option>
+                <option value="1"' . ((isset($_GET['o']) && ($_GET['o'] == 1)) ? ' selected="selected"' : '') . '>A-Z</option>
+                <option value="2"' . ((isset($_GET['o']) && ($_GET['o'] == 2)) ? ' selected="selected"' : '') . '>Z-A</option>
+              </select>';
 
         if ($col && $keyword) {
             echo '<input name="col" type="hidden" value="' . $col . '" /><input name="keyword" type="hidden" value="' . $keyword . '" />';
         }
 
-        echo '<input name="submit" type="submit" value="Refresh" />
-          </form>';  // End of the form.
+        echo '<input name="submit" type="submit" value="Refresh" /></p></form>';  // End of the form.
 
     }  // End of IF ($total_row).
 

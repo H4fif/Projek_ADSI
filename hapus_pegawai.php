@@ -5,8 +5,9 @@ $page_title = 'Hapus Data Pegawai';
 include('includes/header.html');
 
 if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || (!in_array($_SESSION['user_level'], ['administrator', 'manager']))) {
+    ob_end_clean();
     header('Location: index.php');
-
+    exit;
 }  // End of user validation.
 
 // Validate the input id:

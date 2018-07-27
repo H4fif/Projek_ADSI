@@ -6,12 +6,12 @@ $page_title = 'Buat Akun';
 include('includes/header.html');
 
 // Validate the user.
-// Only user with access as administratorISTRATORcan access this page.
+// Only user with access as administrator can access this page.
 // If the user does not have the right access to this page, redirect the user:
 if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || ($_SESSION['user_level'] != 'administrator')) {
     
+    ob_end_clean();
     header('Location: index.php');  // Redirect the user to homepage.
-
     exit;  // Exit the script.
 
 }  // End of user validation.
@@ -22,7 +22,6 @@ require('mysqli_connect.php');  // Need the database connection.
 
 $q = 'SELECT pg.kode_pegawai FROM tb_pegawai AS pg LEFT JOIN tb_akun USING (kode_pegawai) WHERE kode_akun IS NULL';  // Make the query.
 
-
 $r_tp = @mysqli_query($dbc, $q);  // Execute the query.
 
 if ($r_tp) {  // If query succeed, check the returned row.
@@ -30,28 +29,13 @@ if ($r_tp) {  // If query succeed, check the returned row.
     if (mysqli_num_rows($r_tp) == 0) {  // If no record is returned, display a message, exit the script.
 
         echo 'Tidak ada data pegawai untuk dikaitkan.';
-
-        mysqli_free_result($r_tp);  // Free up the resources.
-
-        mysqli_close($dbc);  // Close the database connection.
-
-        include('includes/footer.html');  // Include the footer.
-        
-        exit();  // Exit the script.
-    
+        goto endScript;
     }  // End of if (mysqli_num_rows).
 
 } else {  // If the query failed, display the error message, exit the script.
 
     echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan:<br />' . mysqli_error($dbc) . '</p>';
-
-    mysqli_free_result($r_tp);  // Free up the resources.
-
-    mysqli_close($dbc);  // Close the database connection.
-
-    include('includes/footer.html');  // Include the footer.
-
-    exit();  // Exit the script.
+    goto endScript;
 }
 
 // Validate form submission:
@@ -82,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Validate kata sandi with the konfirmasi kata sandi:
         if ($val['kata_sandi'] != $val['kata_sandi2']) {  // If kata sandi did not match the konfirmasi kata sandi, set an error message.
 
-            $errors[] = 'Kata sandi tidak sama dengan konfirmasi!';  // Add an error message to $errors variable.
+            $errors[] = 'Kata sandi tidak sama dengan konfirmasi kata sandi!';  // Add an error message to $errors variable.
 
         }  // End of konfirmasi kata sandi validation.
 
@@ -128,15 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Show an error message:
             echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan:<br />' . mysqli_error($dbc) . '</p>';
-
-            mysqli_free_result($r);  // Free up the resources.
-
-            mysqli_close($dbc);  // Close the database connection.
-
-            include('includes/footer.html');  // Include the footer.
-            
-            exit();  // Exit the script.
-
+            goto endScript;
         }  // End of query result validation.
 
     }  // End of $errors validation.
@@ -169,15 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($r) {  // If query succeed, show a message, exit the script.
 
             if (mysqli_affected_rows($dbc) == 1) {  // If data is saved, close the connection, exit the script.
-
                 echo '<p>Data telah disimpan, terima kasih.';  // Show a message.
-
-                include('includes/footer.html');  // Include the footer.
-                
-                mysqli_close($dbc);  // Close the database connection.
-                
-                exit();  // Exit the script.
-
+                goto endScript;
             } else {  // If data could not be saved, show an error message.
 
                 // Show an error message.
@@ -208,12 +177,8 @@ echo '<form name="buat_akun" action="buat_akun.php" method="post">
 $arr_akses = ['administrator', 'manager', 'gudang', 'kasir'];
 
 // Show the akses option values:
-// for ($i = 0; $i < 5; $i++) {  // Iterate 5 times.
-
 foreach ($arr_akses as $v) {
-
     echo '<option value="' . $v . '"';  // Show the option and the value.
-
     // Validate the akses:
     if (isset($val['akses'])) {  // If the akses is set, make the option object sticky.
 
@@ -264,6 +229,7 @@ echo '</select></p>
 
 mysqli_free_result($r_tp);  // Free up the resources.
 
+endScript:
 mysqli_close($dbc);  // Close the database connection.
 
 echo '<p><a class="navlink" href="lihat_akun.php">Kembali</a></p>';

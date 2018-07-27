@@ -31,10 +31,9 @@ include('includes/header.html');
 // Only user with access as administratorISTRATOR can access this page.
 // If the user does not have the right access to this page, redirect the user:
 if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] !=   md5($_SERVER['HTTP_USER_AGENT'])) || ($_SESSION['user_level'] != 'administrator')) {
+    ob_end_clean();
     header('Location: index.php');  // Redirect the user to the home page.
-
     exit();  // Exit the script.
-
 }  // End of user validation.
 
 $cari_error = FALSE;
@@ -237,7 +236,7 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Email</th>
             <th>Akses</th>
             <th>Kode Pegawai</th>
-            <th>Edit</th>
+            <th>Ubah</th>
             <th>Hapus</th>
           </tr>';
 
@@ -252,7 +251,7 @@ if ($r) {  // If query succeed, check the returned row.
               <td>' . $row['email'] . '</td>
               <td>' . $row['akses'] . '</td>
               <td>' . $row['kode_pegawai'] . '</td>
-              <td><a href="edit_akun.php?id=' . $row['kode_akun'] . '" class="navlink">Edit</a></td>
+              <td><a href="edit_akun.php?id=' . $row['kode_akun'] . '" class="navlink">Ubah</a></td>
               <td><a href="hapus_akun.php?id=' . $row['kode_akun'] . '" class="navlink">Hapus</a></td></tr>';
 
             $no++;  // Increment the number.
@@ -403,8 +402,7 @@ if ($r) {  // If query succeed, check the returned row.
                   <input type="hidden" name="keyword" value="' . $keyword . '" />';
             }
 
-            echo '<input name="submit" type="submit" value="Refresh" /></p>
-              </form>';
+            echo '<input name="submit" type="submit" value="Refresh" /></p></form>';
 
         }  // End of total record validation.
 

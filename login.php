@@ -5,8 +5,8 @@
 // Check if the user has logged in, and try to access this page directly:
 if (isset($_SESSION['user_id'])) {
     
+    ob_end_clean();
     header('Location: index.php');  // Redirect the user to homepage.
-    ob_clean();
     exit();  // Exit the script.
 
 }  // End of user validation.
@@ -33,14 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validate the email:
     if (empty($val['email']) || !filter_var($val['email'], FILTER_VALIDATE_EMAIL)) {  // If email is not match with the format, set an error message.
         
-        $errors[] = 'Please enter a valid email address!';  // Set an error message.
+        $errors[] = 'Email tidak valid!';  // Set an error message.
 
     }  // End of email validation.
 
     // Validate the password:
     if (empty($val['password']) && !preg_match('/^(\w){4,20}$/', $val['password'])) {  // If password did not match the format, set an error message.
 
-        $errors[] = 'Please enter a valid password!';  // Set an error message.
+        $errors[] = 'Kata sandi tidak valid!';  // Set an error message.
 
     }  // End of password validation.
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Validate the query result:
         if (!$r) {  // If query failed, show an error message.
 
-            echo '<h1>System Error!</h1><p>An error occurred:<br />' . mysqli_error($dbc) . '</p>';  // Display an error message.
+            echo '<h1>Terjadi kesalahan!</h1><p>Query:<br />' . mysqli_error($dbc) . '</p>';  // Display an error message.
 
         } else {  // If query succeed, validate the returned row.
 
@@ -76,15 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['agent'] = md5($_SERVER['HTTP_USER_AGENT']);  // Set the SESSION of agent with the hashed of browser name/
 
                 echo '<p>Login succeed!</p>';  // Display a message.
-
                 header('Location: http://localhost/Projek ADSI/');  // Redirect the user to homepage.
-
-                ob_clean();
+                ob_end_clean();
                 exit();  // Exit the script.
 
             } else {  // If there is no match, display a message:
 
-                echo "<h1>Login Failed!</h1><p>Your account does not match those in file!<br /></p>";  // Display a message.
+                echo "<h1>Login Gagal!</h1><p>Akun Anda tidak terdaftar!<br /></p>";  // Display a message.
             
             }  // End of returned row validation.
 
@@ -92,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     } else {  // If it is not empty, display all the error messages:
 
-        echo '<h2>Login Failed!</h2><p>The following error(s) occurred:<br />';  // Display a header.
+        echo '<h2>Login Gagal!</h2><p>Kesalahan:<br />';  // Display a header.
 
         // Display all the error messages:
         foreach ($errors as $e) {
