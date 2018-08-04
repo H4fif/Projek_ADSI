@@ -1,17 +1,6 @@
 <?php  # Script lihat_pegawai.php
 // This script display data pegawai from database.
 
-/* FEATURES LIST */
-
-// - Searching (done).
-// - Sorting (done).
-// - Searching & sorting combined (done).
-// - Pagination (to do).
-// - .
-// - Delete.
-
-/* END FEATURE LIST */
-
 /* FUNCTIONS */
 
 // Function to check whether the number is kelipatan 5.
@@ -77,9 +66,9 @@ if (empty($_GET['col']) || empty($_GET['keyword']) || !in_array(strtolower($_GET
 
 } else {  // If both values are not set or invalid, represent them as flag variable.
 
-    $col = trim(htmlentities(strip_tags($_GET['col'])));  // Secure the $_GET['col'] value.
+    $col = trim(htmlentities($_GET['col']));  // Secure the $_GET['col'] value.
 
-    $keyword = trim(htmlentities(strip_tags($_GET['keyword'])));  // Secure the $_GET['keyword'] value.
+    $keyword = trim(htmlentities($_GET['keyword']));  // Secure the $_GET['keyword'] value.
 
 }  // End of search validation.
 
