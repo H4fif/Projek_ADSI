@@ -40,11 +40,11 @@ $cari_error = FALSE;
 
 // Validate the search:
 // If both values have a valid value, secure them.
-if (!empty($_GET['col']) && !empty($_GET['keyword']) && in_array(strtolower($_GET['col']), [1, 2, 3])) {
+if (isset($_GET['col'], $_GET['keyword']) && in_array(strtolower($_GET['col']), [1, 2, 3]) && (strlen($_GET['keyword']) >= 1)) {
     
-    $column = trim(htmlentities(strip_tags($_GET['col'])));  // Secure the $_GET['col'] value.
+    $column = trim(htmlentities($_GET['col']));  // Secure the $_GET['col'] value.
 
-    $keyword = trim(htmlentities(strip_tags($_GET['keyword'])));  // Secure the $_GET['keyword'] value.
+    $keyword = trim(htmlentities($_GET['keyword']));  // Secure the $_GET['keyword'] value.
 
 } else {  // If both values are not set or invalid, represent them as flag variable.
 
@@ -103,7 +103,7 @@ if ($o == 1) {  // If it's 1, set to ASCENDING.
 require('mysqli_connect.php');  // Need the database connection.
 
 // Validate the search input:
-if ($column && $keyword) {  // If both are true, continue.
+if ($column && ($keyword !== FALSE)) {  // If both are true, continue.
 
     // Validate the $column variable.
     // Determine the variable for the query search.

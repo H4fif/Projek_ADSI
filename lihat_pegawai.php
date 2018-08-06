@@ -44,9 +44,9 @@ if (isset($_GET['display']) && check_five($_GET['display'])) {
         $display = $_SESSION['display'];
     } else {
         $display = 5;
-    }
+    }  // End IF.
 
-}  // End of display validation.
+}  // End IF.
 
 $_SESSION['display'] = $display;
 
@@ -56,44 +56,40 @@ if (isset($_GET['start']) && check_start($_GET['start'], $display)) {
     $start = 0;
 }
 
-$cari_error = FALSE;
-
 // SEARCHING validation:
 // If both values have a valid value, secure them.
-if (empty($_GET['col']) || empty($_GET['keyword']) || !in_array(strtolower($_GET['col']), ['1', '2', '3', '4'])) {
+if (!isset($_GET['col'], $_GET['keyword']) || !in_array(strtolower($_GET['col']), [1, 2, 3, 4, 5]) || (strlen($_GET['keyword']) == 0)) {
     
     $col = $keyword = FALSE;  // Set flag variables to FALSE.
 
 } else {  // If both values are not set or invalid, represent them as flag variable.
 
     $col = trim(htmlentities($_GET['col']));  // Secure the $_GET['col'] value.
-
     $keyword = trim(htmlentities($_GET['keyword']));  // Secure the $_GET['keyword'] value.
 
 }  // End of search validation.
 
 // SORTING validation:
 // If both variable ($c & $o) have valid values, then get them:
-if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4]) && in_array($_GET['o'], [1, 2])) {
+if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4, 5]) && in_array($_GET['o'], [1, 2])) {
     $c = $_GET['c'];
     $o = $_GET['o'];
-    $sort_status = true;
 } else {
     $c = $o = 1;
-    $sort_status = false;
 }  // End of IF (SORTING validation).
 
-// Validate the $c:
+// Set the $column value for database query:
 switch ($c) {
-    case 1 : $column = 'nama_lengkap';
+    case 1 : $column = 'kode_pegawai';
              break;
-    case 2 : $column = 'jenis_kelamin';
+    case 2 : $column = 'nama_lengkap';
              break;
-    case 3 : $column = 'no_telepon';
+    case 3 : $column = 'jenis_kelamin';
              break;
-    case 4 : $column = 'alamat';
+    case 4 : $column = 'no_telepon';
              break;
-
+    case 5 : $column = 'alamat';
+             break;
 }  // End of SWITCH ($c).
 
 // Validate the $o:
@@ -106,27 +102,35 @@ if ($o == 2) {
 
 require('mysqli_connect.php');  // Need the database connection.
 
-// Validate the search input:
-if ($col && $keyword) {
+// Set the search input for database query:
+if ($col && ($keyword !== FALSE)) {
     switch ($col) {
-        case '1' : $colkey = 'nama_lengkap';
+        case 1 : $colkey = 'kode_pegawai';
+                   $hpc = 'Kode Pegawai';
+                   break;
+        case 2 : $colkey = 'nama_lengkap';
                    $hpc = 'Nama';
                    break;
-        case '2' : $colkey = 'no_telepon';
+        case 3 : $colkey = 'no_telepon';
                    $hpc = 'No. Telepon';
                    break;
-        case '3' : $colkey = 'alamat';
+        case 4 : $colkey = 'alamat';
                    $hpc = ucwords($colkey);
                    break;
+        case 5 : $colkey = 'jenis_kelamin';
+                   $hpc = 'Jenis Kelamin';
+                   break;
+        // NOTE:
+        // - If the search is using 'jenis kelamin'
+        // it only receive the same value with
+        // column value in the database ('L' or 'P').
+        
     }  // End of SWITCH ($column).
 
     $keyword = mysqli_real_escape_string($dbc, $keyword);
-
     $fq = " WHERE $colkey LIKE '%$keyword%'";
     $search = TRUE;
-    // echo "<script>alert('$fq is empty!')</script>";
 } else {
-    // echo "<script>alert('$fq is empty!')</script>";
     $fq = '';
     $search = FALSE;
 
@@ -150,17 +154,18 @@ if ($r) {  // If query succeed, check the returned row.
     echo '<form name="pencarian" action="lihat_pegawai.php" method="get">
       <select name="col">
         <option value="">-- Filter berdasarkan --</option>
-        <option value="1"' . ((isset($_GET['col']) && ($_GET['col'] == '1')) ? ' selected="selected"' : '') . '>Nama</option>
-        <option value="2"' . ((isset($_GET['col']) && ($_GET['col'] == '2')) ? ' selected="selected"' : '') . '>No. Telepon</option>
-        <option value="3"' . ((isset($_GET['col']) && ($_GET['col'] == '3')) ? ' selected="selected"' : '') . '>Alamat</option>
+        <option value="1"' . ((isset($_GET['col']) && ($_GET['col'] == '1')) ? ' selected="selected"' : '') . '>Kode Pegawai</option>
+        <option value="2"' . ((isset($_GET['col']) && ($_GET['col'] == '2')) ? ' selected="selected"' : '') . '>Nama</option>
+        <option value="3"' . ((isset($_GET['col']) && ($_GET['col'] == '3')) ? ' selected="selected"' : '') . '>No. Telepon</option>
+        <option value="4"' . ((isset($_GET['col']) && ($_GET['col'] == '4')) ? ' selected="selected"' : '') . '>Alamat</option>
+        <option value="5"' . ((isset($_GET['col']) && ($_GET['col'] == '5')) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
       </select>
       <input name="keyword" placeholder="Masukkan kata kunci" type="text" minlength="1" maxlength="255" value="' . ((isset($_GET['keyword']) ? $_GET['keyword'] : '')) . '" />
       <input name="submit" type="submit" value="Filter" />
     </form><br />';
 
     if ($search) {
-        echo '<h2>Hasil filter:</h2>
-          <h3>' . $hpc . ': ' . stripslashes($keyword) . '</h3>';
+        echo '<h2>Hasil filter:</h2><h3>' . $hpc . ': ' . stripslashes($keyword) . '</h3>';
     }
 
     // Validate the reurned row:
@@ -178,6 +183,7 @@ if ($r) {  // If query succeed, check the returned row.
         echo '<table border="0" cellspacing="5" cellpadding="5">
           <tr>
             <th>No.</th>
+            <th>Kode Pegawai</th>
             <th>Nama</th>
             <th>Jenis Kelamin</th>
             <th>No. Telepon</th>
@@ -195,6 +201,7 @@ if ($r) {  // If query succeed, check the returned row.
             // Display the data in one row:
             echo '<tr>
                 <td>' . $no . '</td>
+                <td>' . $row['kode_pegawai'] . '</td>
                 <td>' . $row['nama_lengkap'] . '</td>
                 <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-Laki' : 'Perempuan') . '</td>
                 <td>' . $row['no_telepon'] . '</td>
@@ -258,7 +265,7 @@ if ($r) {  // If query succeed, check the returned row.
 
         }
 
-        /* END SECTION */
+        /* END PAGINATION SECTION */
 
         echo '<p>Total: ' . $total_row . ' data.</p><br />';
 
@@ -275,10 +282,11 @@ if ($r) {  // If query succeed, check the returned row.
             <p>
               <select name="c">
                 <option value="">-- Urut Berdasarkan --</option>
-                <option value="1"' . ((isset($_GET['c']) && ($_GET['c'] == 1)) ? ' selected="selected"' : '') . '>Nama</option>
-                <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
-                <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>No. Telepon</option>
-                <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>Alamat</option>
+                <option value="1"' . ((isset($_GET['c']) && ($_GET['c'] == 1)) ? ' selected="selected"' : '') . '>Kode Pegawai</option>
+                <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Nama</option>
+                <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
+                <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>No. Telepon</option>
+                <option value="5"' . ((isset($_GET['c']) && ($_GET['c'] == 5)) ? ' selected="selected"' : '') . '>Alamat</option>
               </select>
               <select name="o">
                 <option value="">-- Urutkan dari --</option>
@@ -304,12 +312,12 @@ if ($r) {  // If query succeed, check the returned row.
 
 }  // End of query result validation.
 
-mysqli_free_result($r);  // Free up the resources.
+mysqli_free_result($r);
 
 endDScript:
 
+mysqli_close($dbc);
 echo '<p><a class="navlink" href="input_pegawai.php">Tambah pegawai baru</a></p>';
-mysqli_close($dbc);  // Close the database connection.
 
 endScript:
 
