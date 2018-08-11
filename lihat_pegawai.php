@@ -187,10 +187,15 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Nama</th>
             <th>Jenis Kelamin</th>
             <th>No. Telepon</th>
-            <th>Alamat</th>
-            <th>Ubah</th>
-            <th>Hapus</th>
-          </tr>';
+            <th>Alamat</th>';
+
+        // Special privilege to administrator:
+        if ($_SESSION['user_level'] == 'adminstrator') {
+            echo '<th>Ubah</th>
+                <th>Hapus</th>';
+        }
+
+        echo '</tr>';
 
         $no = $start + 1;  // For numbering the row.
 
@@ -205,10 +210,14 @@ if ($r) {  // If query succeed, check the returned row.
                 <td>' . $row['nama_lengkap'] . '</td>
                 <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-Laki' : 'Perempuan') . '</td>
                 <td>' . $row['no_telepon'] . '</td>
-                <td>' . $row['alamat'] . '</td>
-                <td><a class="navlink" href="edit_pegawai.php?id=' . $row['kode_pegawai'] . '">Ubah</a></td>
-                <td><a class="navlink" href="hapus_pegawai.php?id=' . $row['kode_pegawai'] . '">Hapus</a></td>
-              </tr>';
+                <td>' . $row['alamat'] . '</td>';
+
+            if ($_SESSION['user_level'] == 'administrator') {
+                echo '<td><a class="navlink" href="edit_pegawai.php?id=' . $row['kode_pegawai'] . '">Ubah</a></td>
+                    <td><a class="navlink" href="hapus_pegawai.php?id=' . $row['kode_pegawai'] . '">Hapus</a></td>';
+            }
+            
+            echo '</tr>';
 
             $no++;  // Increment the number.
 
@@ -317,7 +326,10 @@ mysqli_free_result($r);
 endDScript:
 
 mysqli_close($dbc);
-echo '<p><a class="navlink" href="input_pegawai.php">Tambah pegawai baru</a></p>';
+
+if ($_SESSION['user_level'] == 'adminstrator') {
+    echo '<p><a class="navlink" href="input_pegawai.php">Data Pegawai Baru</a></p>';
+}
 
 endScript:
 

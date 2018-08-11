@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['agent'] = md5($_SERVER['HTTP_USER_AGENT']);  // Set the SESSION of agent with the hashed of browser name/
 
                 echo '<p>Login succeed!</p>';  // Display a message.
-                header('Location: http://localhost/Projek ADSI/');  // Redirect the user to homepage.
+                header('Location: http://localhost/projek_adsi/');  // Redirect the user to homepage.
                 ob_end_clean();
                 exit();  // Exit the script.
 

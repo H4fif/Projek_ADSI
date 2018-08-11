@@ -17,17 +17,14 @@ if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] !
 // Validate form submission:
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $val = array_map('strip_tags', $_POST);  // Remove any HTML and PHP tags.
+    $val = array_map('htmlentities', $_POST);
+    $val = array_map('trim', $val);
 
-    $val = array_map('htmlentities', $val);  // Convert all applicable characters to HTML entities.
-    
-    $val = array_map('trim', $val);  // Remove any whitespaces.
+    $errors = [];
 
-    $errors = [];  // Initialize $errors variable to store error messages.
-
-    // Validate nama lengnkap:
-    // It should at least contain 2 characters or 100 characters at maximum.
-    if (empty($val['nama_lengkap']) || !preg_match('/^[\w+|\056*|\'*|\040*]{2,100}$/', $val['nama_lengkap'])) {
+    // Validate nama lengkap:
+    // It should at least contain 2 characters or 150 characters at maximum.
+    if (empty($val['nama_lengkap']) || !preg_match('/^[\w+|\056*|\'*|\040*]{2,150}$/', $val['nama_lengkap'])) {
         
         $errors[] = 'Nama tidak valid!';  // Set an error message.
     
@@ -49,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }  // End of no telepon validation.
 
     // Validate alamat:
-    // It should at least contain 4 characters.
-    if (empty($val['alamat']) || (strlen($val['alamat']) < 4)) {
+    // It should at least contain 4 characters, at max 255 chars.
+    if (empty($val['alamat']) || (strlen($val['alamat']) < 4) || (strlen($val['alamat']) > 255)) {
         
         $errors[] = 'Alamat tidak valid!';  // Set an error message.
     
@@ -156,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // inputForm:
     // Create the form:
     echo '<form name="input_data_pegawai" action="input_pegawai.php" method="post">
-        <p>Nama Lengkap: <input name="nama_lengkap" type="text" minlength="2" maxlength="100" required="required"' . ((isset($val['nama_lengkap']) ? 'value="' . $val['nama_lengkap'] . '"' : '')) . '" /></p>
+        <p>Nama Lengkap: <input name="nama_lengkap" type="text" minlength="2" maxlength="150" required="required"' . ((isset($val['nama_lengkap']) ? ' value="' . $val['nama_lengkap'] . '"' : '')) . '" /></p>
         <p>Jenis Kelamin:
           <input name="jenis_kelamin" type="radio" value="L" required="required"' . ((isset($val['jenis_kelamin']) && ($val['jenis_kelamin'] == 'L')) ? ' checked="checked"' : '') .
           '/>Laki-Laki <input name="jenis_kelamin" type="radio" value="P" required="required"' . ((isset($val['jenis_kelamin']) && ($val['jenis_kelamin'] == 'P')) ? ' checked="checked"' : '') . '/>Perempuan</p>

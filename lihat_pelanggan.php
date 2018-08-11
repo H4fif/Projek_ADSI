@@ -30,7 +30,7 @@ include('includes/header.html');
 // Validate the user.
 // Only user with access as administratorISTRATOR OR MANAGER can access this page.
 // If the user does not have the right access to this page, redirect the user:
-if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || (!in_array($_SESSION['user_level'], ['administrator', 'manager', 'gudang']))) {
+if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || (!in_array($_SESSION['user_level'], ['administrator', 'manager', 'kasir']))) {
     ob_end_clean();
     header('Location: index.php');  // Redirect the user to homepage.
     exit;
@@ -178,10 +178,14 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Nama</th>
             <th>Jenis Kelamin</th>
             <th>No. Telepon</th>
-            <th>Alamat</th>
-            <th>Ubah</th>
-            <th>Hapus</th>
-          </tr>';
+            <th>Alamat</th>';
+
+        if (in_array($_SESSION['user_level'], ['administrator', 'kasir'])) {
+            echo '<th>Ubah</th>
+                <th>Hapus</th>';
+        }
+        
+        echo '</tr>';
 
         $no = $start + 1;  // For numbering the row:
 
@@ -195,10 +199,14 @@ if ($r) {  // If query succeed, check the returned row.
                 <td>' . $row['nama_pelanggan'] . '</td>
                 <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-laki' : 'Perempuan') . '</td>
                 <td>' . $row['no_telepon'] . '</td>
-                <td>' . $row['alamat'] . '</td>
-                <td><a class="navlink" href="#">Ubah</a></td>
-                <td><a class="navlink" href="#">Hapus</a></td>
-              </tr>';
+                <td>' . $row['alamat'] . '</td>';
+
+            if (in_array($_SESSION['user_level'], ['administrator', 'kasir'])) {
+                echo '<td><a class="navlink" href="#">Ubah</a></td>
+                <td><a class="navlink" href="#">Hapus</a></td>';
+            }
+            
+            echo '</tr>';
 
             $no++;  // Increment the number.
 
@@ -232,7 +240,7 @@ if ($r) {  // If query succeed, check the returned row.
 
             // Prev button:
             if ($current_page != 1) {
-                echo '<a class="navlink" href="lihat_pegawai.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($start - $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Sebelumnya</a> ';
+                echo '<a class="navlink" href="lihat_pelanggan.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($start - $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Sebelumnya</a> ';
             }
 
             // Numbered link page:
@@ -241,14 +249,14 @@ if ($r) {  // If query succeed, check the returned row.
                 if ($i == $current_page) {
                     echo $i . ' ';
                 } else {
-                    echo '<a class="navlink" href="lihat_pegawai.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($display * ($i - 1)) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">' . $i . ' </a>';
+                    echo '<a class="navlink" href="lihat_pelanggan.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($display * ($i - 1)) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">' . $i . ' </a>';
                 }  // End of IF.
 
             }  // End of FOR loop.
 
             // Next button:
             if ($current_page != $page) {
-                echo ' <a class="navlink" href="lihat_pegawai.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($start + $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Selanjutnya</a>';
+                echo ' <a class="navlink" href="lihat_pelanggan.php?col=' . $col . '&keyword=' . $keyword . '&start=' . ($start + $display) . '&display=' . $display . '&c=' . $c . '&o=' . $o . '">Selanjutnya</a>';
             }
             echo '</p>';
 
@@ -304,7 +312,10 @@ mysqli_free_result($r);
 
 endScript:
 mysqli_close($dbc);
-echo '<p><a class="navlink" href="#">Tambah data pelanggan</a></p>';
+
+if (in_array($_SESSION['user_level'], ['administrator', 'kasir'])) {
+    echo '<p><a class="navlink" href="input_pelanggan.php">Data Pelanggan Baru</a></p>';
+}
 
 include('includes/footer.html');
 ?>

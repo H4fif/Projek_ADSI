@@ -1,4 +1,4 @@
-<?php  # Script buat_akun.php
+<?php  # Script input_akun.php
 // This page for creating new account.
 
 // Set the page title and include the header:
@@ -17,8 +17,6 @@ if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] !
 }  // End of user validation.
 
 require('mysqli_connect.php');  // Need the database connection.
-
-// $q = 'SELECT kode_pegawai FROM tb_pegawai ORDER BY kode_pegawai ASC';  // Make the query.
 
 $q = 'SELECT pg.kode_pegawai FROM tb_pegawai AS pg LEFT JOIN tb_akun USING (kode_pegawai) WHERE kode_akun IS NULL';  // Make the query.
 
@@ -166,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }  // End of form submission.
 
 // Create the form:
-echo '<form name="buat_akun" action="buat_akun.php" method="post">
+echo '<form name="input_akun" action="input_akun.php" method="post">
   <p>Email: <input name="email" type="email" minlength="6" maxlength="40" required="required" value="' . ((isset($val['email'])) ? $val['email'] : '') . '" /></p>
   <p>Kata Sandi: <input name="kata_sandi" type="password" minlength="4" maxlength="20" required="required" value="' . ((isset($val['kata_sandi'])) ? $val['kata_sandi'] : '') . '" /></p>
   <p>Konfirmasi Kata Sandi: <input name="kata_sandi2" type="password" minlength="4" maxlength="20" required="required" value="' . ((isset($val['kata_sandi2'])) ? $val['kata_sandi2'] : '') . '" /></p>
