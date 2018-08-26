@@ -71,7 +71,7 @@ if (!isset($_GET['col'], $_GET['keyword']) || !in_array(strtolower($_GET['col'])
 
 // SORTING validation:
 // If both variable ($c & $o) have valid values, then get them:
-if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4, 5]) && in_array($_GET['o'], [1, 2])) {
+if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4, 5, 6]) && in_array($_GET['o'], [1, 2])) {
     $c = $_GET['c'];
     $o = $_GET['o'];
 } else {
@@ -86,9 +86,11 @@ switch ($c) {
              break;
     case 3 : $column = 'jenis_kelamin';
              break;
-    case 4 : $column = 'no_telepon';
+    case 4 : $column = 'tgl_lahir';
              break;
-    case 5 : $column = 'alamat';
+    case 5 : $column = 'no_telepon';
+             break;
+    case 6 : $column = 'alamat';
              break;
 }  // End of SWITCH ($c).
 
@@ -160,7 +162,7 @@ if ($r) {  // If query succeed, check the returned row.
         <option value="4"' . ((isset($_GET['col']) && ($_GET['col'] == '4')) ? ' selected="selected"' : '') . '>Alamat</option>
         <option value="5"' . ((isset($_GET['col']) && ($_GET['col'] == '5')) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
       </select>
-      <input name="keyword" placeholder="Masukkan kata kunci" type="text" minlength="1" maxlength="255" value="' . ((isset($_GET['keyword']) ? $_GET['keyword'] : '')) . '" />
+      <input name="keyword" placeholder="Masukkan kata kunci" type="search" minlength="1" maxlength="255" value="' . ((isset($_GET['keyword']) ? $_GET['keyword'] : '')) . '" />
       <input name="submit" type="submit" value="Filter" />
     </form><br />';
 
@@ -186,6 +188,7 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Kode Pegawai</th>
             <th>Nama</th>
             <th>Jenis Kelamin</th>
+            <th>Tanggal Lahir</th>
             <th>No. Telepon</th>
             <th>Alamat</th>';
 
@@ -202,13 +205,15 @@ if ($r) {  // If query succeed, check the returned row.
         // Display all records:
         while ($row = mysqli_fetch_array($r, MYSQLI_ASSOC)) {  // Fetching each record to $row variable.
 
-            // NEED TO BE UPDATED!
+            $a = explode('-', $row['tgl_lahir']);
+
             // Display the data in one row:
             echo '<tr>
                 <td>' . $no . '</td>
                 <td>' . $row['kode_pegawai'] . '</td>
                 <td>' . $row['nama_lengkap'] . '</td>
                 <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-Laki' : 'Perempuan') . '</td>
+                <td>' . date('j F Y', mktime(0, 0, 0, $a[1], $a[2], $a[0])) . '</td>
                 <td>' . $row['no_telepon'] . '</td>
                 <td>' . $row['alamat'] . '</td>';
 
@@ -294,8 +299,9 @@ if ($r) {  // If query succeed, check the returned row.
                 <option value="1"' . ((isset($_GET['c']) && ($_GET['c'] == 1)) ? ' selected="selected"' : '') . '>Kode Pegawai</option>
                 <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Nama</option>
                 <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
-                <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>No. Telepon</option>
-                <option value="5"' . ((isset($_GET['c']) && ($_GET['c'] == 5)) ? ' selected="selected"' : '') . '>Alamat</option>
+                <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>Tanggal Lahir</option>
+                <option value="5"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>No. Telepon</option>
+                <option value="6"' . ((isset($_GET['c']) && ($_GET['c'] == 5)) ? ' selected="selected"' : '') . '>Alamat</option>
               </select>
               <select name="o">
                 <option value="">-- Urutkan dari --</option>
@@ -327,7 +333,7 @@ endDScript:
 
 mysqli_close($dbc);
 
-if ($_SESSION['user_level'] == 'adminstrator') {
+if ($_SESSION['user_level'] == 'administrator') {
     echo '<p><a class="navlink" href="input_pegawai.php">Data Pegawai Baru</a></p>';
 }
 

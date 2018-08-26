@@ -7,7 +7,18 @@
 // Need 1 argument, database connection.
 function show_query_error($dbc){
     echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan:<br />' . mysqli_error($dbc) . '</p>';
-}  // End of show_query_error FUNCTION.
+}  // End FUNCTION.
+
+function dateDifference($date_1 , $date_2 , $differenceFormat = '%y' )
+{
+    $datetime1 = date_create($date_1);
+    $datetime2 = date_create($date_2);
+    
+    $interval = date_diff($datetime1, $datetime2, TRUE);
+    
+    return $interval->format($differenceFormat);
+    
+}
 
 /***** END FUNCTION DICTIONARY *****/
 
@@ -47,6 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     }  // End of jenis kelamin validation.
 
+    $today = time();
+    // Validate tanggal lahir:
+    if (!isset($val['tgl_lahir']) || (dateDifference(date('Ymd'), $val['tgl_lahir']) < 18)) {
+        $errors[] = 'Tanggal lahir tidak valid!';
+    }
+
     // Validate no telepon:
     // It should at least contain 5 digits or 15 digits at maximum.
     if (empty($val['no_telp']) || !is_numeric($val['no_telp']) || (strlen($val['no_telp']) < 3) || (strlen($val['no_telp']) > 15)) {
@@ -77,10 +94,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $np = mysqli_real_escape_string($dbc, $val['nama_pelanggan']);
         $jk = mysqli_real_escape_string($dbc, $val['jk']);
+        $tgl = mysqli_real_escape_string($dbc, $val['tgl_lahir']);
         $nt = mysqli_real_escape_string($dbc, $val['no_telp']);
         $a = mysqli_real_escape_string($dbc, $val['alamat']);
 
-        $q = "SELECT * FROM tb_pelanggan WHERE (nama_pelanggan = '$np' AND jenis_kelamin = '$jk' AND alamat = '$a') OR (no_telepon = '$nt')";
+        $q = "SELECT * FROM tb_pelanggan WHERE (nama_pelanggan = '$np' AND jenis_kelamin = '$jk' AND tgl_lahir = '$tgl') OR (no_telepon = '$nt')";
         $r = @mysqli_query($dbc, $q); 
 
         // Validate the query result:
@@ -104,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             echo '</p>';
         } else {
-            $q = "INSERT INTO tb_pelanggan (nama_pelanggan, jenis_kelamin, no_telepon, alamat) VALUES ('$np', '$jk', '$nt', '$a')";
+            $q = "INSERT INTO tb_pelanggan (nama_pelanggan, jenis_kelamin, tgl_lahir, no_telepon, alamat) VALUES ('$np', '$jk', '$tgl', '$nt', '$a')";
             $r = @mysqli_query($dbc, $q);
 
             // Validate the query result:
@@ -129,9 +147,10 @@ echo '<form name="input_pelanggan" action="input_pelanggan.php" method="post">
   <p>Jenis Kelamin:
     <input name="jk" type="radio" value="L" required="required"' . ((isset($val['jk'])) ? ' checked="checked"' : '') . ' />Laki-laki
     <input name="jk" type="radio" value="P" required="required"' . ((isset($val['jk'])) ? ' checked="checked"' : '') . ' />Perempuan</p>
+  <p>Tanggal Lahir: <input name="tgl_lahir" type="date" required="required"' . ((isset($val['tgl_lahir'])) ? ' value="' . $val['tgl_lahir'] . '"' : '') . ' /></p>
   <p>No. Telepon: <input name="no_telp" type="text" minlength="5" maxlength="15" required="required"' . ((isset($val['no_telp'])) ? ' value="' . $val['no_telp'] . '"' : '') . ' /></p>
   <p>Alamat: <textarea name="alamat" cols="40" rows="5" required="required">' . ((isset($val['alamat'])) ? $val['alamat'] : '') . '</textarea></p>
-  <p><input name="submit" type="submit" value="Simpan" /></p>
+  <p><input name="submit" type="submit" value="Simpan" /> <input type="reset" value="Reset" /></p>
 </form>';
 
 endScript:

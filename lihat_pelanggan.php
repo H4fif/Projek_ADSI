@@ -66,7 +66,7 @@ if (isset($_GET['colCari'], $_GET['keywordCari']) && in_array($_GET['colCari'], 
 
 // SORTING validation:
 // If both variable ($c & $o) have valid values, then get them:
-if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4, 5]) && in_array($_GET['o'], [1, 2])) {
+if (isset($_GET['c'], $_GET['o']) && in_array($_GET['c'], [1, 2, 3, 4, 5, 6]) && in_array($_GET['o'], [1, 2])) {
     $c = $_GET['c'];
     $o = $_GET['o'];
 } else {
@@ -81,9 +81,11 @@ switch ($c) {
              break;
     case 3 : $column = 'jenis_kelamin';
              break;
-    case 4 : $column = 'no_telepon';
+    case 4 : $column = 'tgl_lahir';
              break;
-    case 5 : $column = 'alamat';
+    case 5 : $column = 'no_telepon';
+             break;
+    case 6 : $column = 'alamat';
              break;
 }  // End of SWITCH ($c).
 
@@ -154,7 +156,7 @@ if ($r) {  // If query succeed, check the returned row.
         <option value="4"' . ((isset($_GET['colCari']) && ($_GET['colCari'] == 4)) ? ' selected="selected"' : '') . '>No. Telepon</option>
         <option value="5"' . ((isset($_GET['colCari']) && ($_GET['colCari'] == 5)) ? ' selected="selected"' : '') . '>Alamat</option>
       </select>
-      <input name="keywordCari" placeholder="Masukkan kata kunci" type="text" minlength="1" maxlength="255" value="' . ((isset($_GET['keywordCari']) ? $_GET['keywordCari'] : '')) . '" />
+      <input name="keywordCari" placeholder="Masukkan kata kunci" type="search" minlength="1" maxlength="255" value="' . ((isset($_GET['keywordCari']) ? $_GET['keywordCari'] : '')) . '" />
       <input name="submit" type="submit" value="Filter" />
     </form><br />';
 
@@ -177,6 +179,7 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Kode Pelanggan</th>
             <th>Nama</th>
             <th>Jenis Kelamin</th>
+            <th>Tanggal Lahir</th>
             <th>No. Telepon</th>
             <th>Alamat</th>';
 
@@ -192,18 +195,21 @@ if ($r) {  // If query succeed, check the returned row.
         // Display all the records:
         while ($row = mysqli_fetch_array($r, MYSQLI_ASSOC)) {  // Fetching each record to $row variable.
 
+            $a = explode('-', $row['tgl_lahir']);
+
             // Display each data in one row:
             echo '<tr>
                 <td>' . $no . '</td>
                 <td>' . $row['kode_pelanggan'] . '</td>
                 <td>' . $row['nama_pelanggan'] . '</td>
                 <td>' . (($row['jenis_kelamin'] == 'L') ? 'Laki-laki' : 'Perempuan') . '</td>
+                <td>' . date('j F Y', mktime(0, 0, 0, $a[1], $a[2], $a[0])) . '</td>
                 <td>' . $row['no_telepon'] . '</td>
                 <td>' . $row['alamat'] . '</td>';
 
             if (in_array($_SESSION['user_level'], ['administrator', 'kasir'])) {
-                echo '<td><a class="navlink" href="#">Ubah</a></td>
-                <td><a class="navlink" href="#">Hapus</a></td>';
+                echo '<td><a class="navlink" href="edit_pelanggan.php?id=' . $row['kode_pelanggan'] . '">Ubah</a></td>
+                <td><a class="navlink" href="hapus_pelanggan.php?id=' . $row['kode_pelanggan'] . '">Hapus</a></td>';
             }
             
             echo '</tr>';
@@ -282,8 +288,9 @@ if ($r) {  // If query succeed, check the returned row.
                 <option value="1"' . ((isset($_GET['c']) && ($_GET['c'] == 1)) ? ' selected="selected"' : '') . '>Kode Pelanggan</option>
                 <option value="2"' . ((isset($_GET['c']) && ($_GET['c'] == 2)) ? ' selected="selected"' : '') . '>Nama</option>
                 <option value="3"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>Jenis Kelamin</option>
-                <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>No. Telepon</option>
-                <option value="5"' . ((isset($_GET['c']) && ($_GET['c'] == 5)) ? ' selected="selected"' : '') . '>Alamat</option>
+                <option value="4"' . ((isset($_GET['c']) && ($_GET['c'] == 3)) ? ' selected="selected"' : '') . '>Tanggal Lahir</option>
+                <option value="5"' . ((isset($_GET['c']) && ($_GET['c'] == 4)) ? ' selected="selected"' : '') . '>No. Telepon</option>
+                <option value="6"' . ((isset($_GET['c']) && ($_GET['c'] == 5)) ? ' selected="selected"' : '') . '>Alamat</option>
               </select>
               <select name="o">
                 <option value="">-- Urutkan dari --</option>

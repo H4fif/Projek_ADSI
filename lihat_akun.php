@@ -207,7 +207,7 @@ if ($r) {  // If query succeed, check the returned row.
     // Complete the form and create the table.
     echo '>Kode Pegawai</option>
         </select>
-        <input name="keyword" type="text" placeholder="Masukkan kata kunci" value="' . ((isset($_GET['keyword'])) ? $_GET['keyword'] : '') . '" />
+        <input name="keyword" type="search" placeholder="Masukkan kata kunci" value="' . ((isset($_GET['keyword'])) ? $_GET['keyword'] : '') . '" />
         <input name="submit" type="submit" value="Filter" />
       </form><br />';
 
@@ -422,7 +422,7 @@ mysqli_free_result($r);  // Free up the resources.
 
 endDScript:
 
-echo '<p><a href="buat_akun.php" class="navlink">Buat akun baru</a></p>';
+echo '<p><a href="input_akun.php" class="navlink">Buat akun baru</a></p>';
 
 mysqli_close($dbc);  // Close the database connection.
 

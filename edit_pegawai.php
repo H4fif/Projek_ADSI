@@ -38,14 +38,13 @@ if ($r) {
 
 // Validate the FORM SUBMISSION:
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $val = array_map('strip_tags', $_POST);
-    $val = array_map('htmlentities', $val);
+    $val = array_map('htmlentities', $_POST);
     $val = array_map('trim', $val);
 
     $errors = [];
 
     // Validate nama:
-    if (empty($val['nama']) && !preg_match("/^[\w+|\040*|\'*|\056*]{2,100}$/", $val['nama'])) {
+    if (empty($val['nama']) && !preg_match("/^[\w+|\040*|\'*|\056*]{2,150}$/", $val['nama'])) {
         $errors[] = 'Nama tidak valid!';
     }  // End IF.
 
@@ -104,8 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }  // End of IF (!empty($error)).
 } else {
 
-// UPDATE THIS SOON!
-
 // Make the form sticky
   form:
 
@@ -138,14 +135,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     echo '<form action="edit_pegawai.php" method="post">
-        <p>Nama: <input name="nama" type="text" minlength="2" maxlength="100" value="' . $stNama . '" /></p>
-        <p>Jenis Kelamin: <input name="jk" type="radio" value="L" ' . (($stJk == 'L') ? ' checked="checked"' : '') . '/>Laki-laki <input name="jk" type="radio" value="P" ' . (($stJk == 'P') ? ' checked="checked"' : '') . ' />Perempuan</p>
+        <p>Nama: <input name="nama" type="text" minlength="2" maxlength="150" value="' . $stNama . '" /></p>
+        <p>Jenis Kelamin: <input name="jk" type="radio" value="L"' . (($stJk == 'L') ? ' checked="checked"' : '') . '/>Laki-laki <input name="jk" type="radio" value="P" ' . (($stJk == 'P') ? ' checked="checked"' : '') . ' />Perempuan</p>
         <p>No. Telepon: <input name="no_telp" type="text" minlength="3" maxlength="15" value="' . $stNt . '" /></p>
-        <p>Alamat: <textarea name="alamat" row="6" col="50">' . $stA . '</textarea></p>
+        <p>Alamat: <textarea name="alamat" rows="6" cols="50">' . $stA . '</textarea></p>
         <p><input name="id" type="hidden" value="' . $id . '" /></p>
-        <p><input name="submit" type="submit" value="Simpan" /></p>
+        <p><input name="submit" type="submit" value="Simpan" /> <input type="reset" value="Reset" /></p>
       </form>';
-}
+
+}  // End of FORM SUBMISSION validation.
 
 endScript:
 

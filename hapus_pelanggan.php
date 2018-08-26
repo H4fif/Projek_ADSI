@@ -1,10 +1,10 @@
-<?php  # Script hapus_pegawai.php
-// This script delete data pegawai from database.
+<?php  # Script hapus_pelanggan.php
+// This script delete data pelanggan from database.
 
-$page_title = 'Hapus Data Pegawai';
+$page_title = 'Hapus Data Pelanggan';
 include('includes/header.html');
 
-if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || (!in_array($_SESSION['user_level'], ['administrator', 'manager']))) {
+if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT'])) || (!in_array($_SESSION['user_level'], ['administrator', 'kasir']))) {
     ob_end_clean();
     header('Location: index.php');
     exit;
@@ -24,44 +24,42 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 require('mysqli_connect.php');
 
 // Validate the id against the list:
-$q = "SELECT * FROM tb_pegawai WHERE kode_pegawai = $id";
+$q = "SELECT * FROM tb_pelanggan WHERE kode_pelanggan = $id";
 $r2 = @mysqli_query($dbc, $q);
-
-// Validate the query result:
 if ($r2) {
     if (mysqli_num_rows($r2) == 1) {
         $row = mysqli_fetch_array($r2, MYSQLI_ASSOC);
     } else {
         goto errorMessage;
-    }  // End of IF (mysqli_num_rows).
+    }  // End of IF mysqli_num_rows.
 } else {
     echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan saat menjalankan query: ' . mysqli_error($dbc) . '</p>';
-}  // End of IF ($r2).
+}  // End of IF $r2.
 
 // Validate the FORM SUBMISSION:
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($_POST['konfirmasi'] == '1') {
-        $q = "DELETE FROM tb_pegawai WHERE kode_pegawai = $id";
+        $q = "DELETE FROM tb_pelanggan WHERE kode_pelanggan = $id";
         $r = @mysqli_query($dbc, $q);
 
         // Validate the query result:
         if ($r) {
             if (mysqli_affected_rows($dbc) == 1) {
-                echo '<p>Data telah berhasil di hapus.</p>';
+                echo '<p>Data telah berhasil dihapus.<p>';
             } else {
                 echo '<p>Tidak ada perubahan yang disimpan.</p>';
-            }  // End of IF (mysqli_affected_rows).
+            }  // End of IF affected_rows.
         } else {
             echo '<h1>Terjadi kesalahan!</h1><p>Kesalahan saat menjalankan query: ' . mysqli_error($dbc) . '</p>';
-        } // End of IF($r).
+        }  // End of query result validation.
     } else {
         echo '<p>Tidak ada perubahan yang disimpan.</p>';
-    } // End of IF ($_POST['konfirmasi'] == '1').
+    }  // End of IF konfirmasi validation.
 } else {
-    echo '<form action="hapus_pegawai.php" method="post">
+    echo '<form action="hapus_pelanggan.php" method="post">
         <h1>Yakin Anda akan menghapus data tersebut?</h1>
         <p>Kode Pegawai: ' . $id . '</p>
-        <p>Nama: ' . $row['nama_lengkap'] . '</p>
+        <p>Nama: ' . $row['nama_pelanggan'] . '</p>
         <p>Jenis Kelamin: ' . (($row['jenis_kelamin'] == 'L') ? 'Laki-laki' : 'Perempuan') . '</p>
         <p>No. Telepon: ' . $row['no_telepon'] . '</p>
         <p>Alamat: ' . $row['alamat'] . '</p>
@@ -69,11 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <p><input name="konfirmasi" type="radio" value="1" />Ya <input name="konfirmasi" type="radio" value="0" checked="checked" />Tidak</p>
         <p><input name="submit" type="submit" value="Hapus" /></p>
       </form>';
-}  // End of IF FORM SUBMISSION VALIDATION.
+}  // End of FORM SUBMISSION validation.
 
 endScript:
 
-echo '<p><a class="navlink" href="lihat_pegawai.php">Kembali</a></p>';
+echo '<p><a class="navlink" href="lihat_pelanggan.php">Kembali</a></p>';
 
 include('includes/footer.html');
 ?>

@@ -41,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $errors = [];  // Initialize variable for error message(s).
 
-    $val = array_map('strip_tags', $_POST);  // Remove any HTML and PHP tags.
-    
     $val = array_map('htmlentities', $val);  // Convert all applicable characters to HTML entities.
 
     $val = array_map('trim', $val);  // Remove any whitespace character.
@@ -222,7 +220,7 @@ while ($row = mysqli_fetch_array($r_tp, MYSQLI_NUM)) {  // Fetching from the dat
 
 // Continue the from.
 echo '</select></p>
-    <p><input type="submit" name="submit" value="Buat Akun!" /></p>
+    <p><input type="submit" name="submit" value="Buat Akun" /> <input type="reset" value="Reset" /></p>
   </form>';
 
 mysqli_free_result($r_tp);  // Free up the resources.

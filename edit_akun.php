@@ -45,7 +45,6 @@ if ($r2) {
 
 // If it passes all validation, do this:
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $val = array_map('strip_tags', $_POST);
     $val = array_map('htmlentities', $val);
     $val = array_map('trim', $val);
 
@@ -56,22 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = 'Email tidak valid!';
     }
 
-    // Validate kata sandi:
-    /* if (!empty($val['kata_sandi']) && (strlen($val['kata_sandi']) >= 4)) {
-        if ($val['kata_sandi'] != $val['kata_sandi2']) {
-            $errors[] = 'Kata sandi tidak sama dengan konfirmasi kata sandi!';
-        }  // End of IF kata_sandi2 validation.
-    } else {
-        $errors[] = 'Kata sandi tidak valid!';
-    }  // End of kata sandi validation. */
+    
     if (!empty($val['kata_sandi'])) {
         if (strlen($val['kata_sandi']) >= 4) {
             if ($val['kata_sandi'] != $val['kata_sandi2']) {
                 $errors[] = 'Kata sandi tidak sama dengan konfirmasi kata sandi!';
             }  // End of IF kata_sandi2 validation.
         }
-    // } else {
-        // $errors[] = 'Kata sandi tidak valid!';
     }
 
     // Validate kode pegawai:
@@ -200,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }  //  End of user validation.
 
     echo '<p><input name="id" type="hidden" value="' . $id . '" /></p>
-      <p><input name="submit" type="submit" value="Simpan" /></p></form>';
+      <p><input name="submit" type="submit" value="Simpan" /> <input type="reset" value="Reset" /></p></form>';
 
 }  // End of form submission.
 
