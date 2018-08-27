@@ -151,12 +151,13 @@ DROP TABLE IF EXISTS `tb_pegawai`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_pegawai` (
   `kode_pegawai` int(11) NOT NULL AUTO_INCREMENT,
-  `nama_lengkap` varchar(100) NOT NULL,
+  `nama_lengkap` varchar(150) NOT NULL,
   `jenis_kelamin` enum('L','P') NOT NULL,
   `no_telepon` varchar(15) NOT NULL,
   `alamat` varchar(255) NOT NULL,
+  `tgl_lahir` date NOT NULL,
   PRIMARY KEY (`kode_pegawai`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -165,7 +166,7 @@ CREATE TABLE `tb_pegawai` (
 
 LOCK TABLES `tb_pegawai` WRITE;
 /*!40000 ALTER TABLE `tb_pegawai` DISABLE KEYS */;
-INSERT INTO `tb_pegawai` VALUES (1,'John Lennon','L','123456789','New York'),(2,'Paul McCartney','L','123456788','California'),(3,'George Harrison','L','123456787','Nevada'),(4,'Ringo Starr','L','123456786','Los Angeles'),(5,'admin1','L','12345','jl. abc'),(6,'admin2','P','12345','Jl. admin2'),(7,'kasir2','P','12345','Jl. Kasir No. 2'),(8,'kasir1','L','123456789','New York'),(9,'gudang1','L','123456788','California'),(10,'manager1','L','123456787','Nevada'),(11,'admin3','L','123456786','Los Angeles'),(12,'kasir3','P','123456789','New York'),(13,'gudang2','P','123456788','California'),(14,'manager2','P','123456787','Nevada'),(15,'kasir4','P','123456786','Los Angeles'),(16,'Hafif_Imammuddyn','L','123412341234','alert(\'xcc attack!\');'),(17,'John\'s','L','1234134','london, us.'),(18,'kim\'s','L','12345321','north korea'),(19,'minsjong','L','87483294710','south korea'),(21,'yuda ha\'san','L','342347978','bandung, jawa barat, indonesia'),(22,'qwery\'','P','123412414','qwery st. 123'),(23,'abc de\'f','P','792345','jl. abc no. 123 kota depok qweoriuqwerpiouqwepioruqweporiuqewpioruqweoriu'),(24,'a Nasution','L','234124','Jl. A.H. Nasution'),(25,'a. badf','L','12342144','afsfafff'),(26,'H. Ma\'ruf','L','3432134243','adfafdfa 1234134134'),(27,'qerwer\'adfa','L','42341414','adfaf412411'),(28,'aldkskfajf','L','34141412','dafdfdaff'),(29,'H. amir s.k.','L','34141234124','afadfadfa'),(30,'.adf.\'adff','L','134141234','xzvzxvzxcvzx'),(31,'H. Kalap S.Kom.','L','96796','uiooyuioyuioy');
+INSERT INTO `tb_pegawai` VALUES (1,'John Lennon','L','123456789','New York','1993-03-26'),(2,'Paul McCartney','L','123456788','California','1993-03-26'),(3,'George Harrison','L','123456787','Nevada','1993-03-26'),(4,'Ringo Starr','L','123456786','Los Angeles','1993-03-26'),(5,'admin1','L','12345','jl. abc','1993-03-26'),(6,'admin2','P','12345','Jl. admin2','1993-03-26'),(7,'kasir2','P','12345','Jl. Kasir No. 2','1993-03-26'),(8,'kasir1','L','123456789','New York','1993-03-26'),(9,'gudang1','L','123456788','California','1993-03-26'),(10,'manager1','L','123456787','Nevada','1993-03-26'),(11,'admin3','L','123456786','Los Angeles','1982-06-26'),(12,'kasir3','P','123456789','New York','1982-06-26'),(13,'gudang2','P','123456788','California','1982-06-26'),(14,'manager2','P','123456787','Nevada','1982-06-26'),(15,'kasir4','P','123456786','Los Angeles','1982-06-26'),(16,'Hafif_Imammuddyn','L','123412341234','alert(\'xcc attack!\');','1982-06-26'),(17,'John\'s','L','1234134','london, us.','1982-06-26'),(18,'kim\'s','L','12345321','north korea','1982-06-26'),(19,'minsjong','L','87483294710','south korea','1982-06-26'),(21,'yuda ha\'san','L','342347978','bandung, jawa barat, indonesia','1989-08-12'),(22,'qwery\'','P','123412414','qwery st. 123','1989-08-12'),(23,'abc de\'f','P','792345','jl. abc no. 123 kota depok qweoriuqwerpiouqwepioruqweporiuqewpioruqweoriu','1989-08-12'),(24,'a Nasution','L','234124','Jl. A.H. Nasution','1989-08-12'),(25,'a. badf','L','12342144','afsfafff','1989-08-12'),(26,'H. Ma\'ruf','L','3432134243','adfafdfa 1234134134','1989-08-12'),(28,'aldkskfajf','L','34141412','dafdfdaff','1989-08-12'),(29,'H. amir s.k.','L','34141234124','afadfadfa','1989-08-12'),(30,'.adf.\'adff','L','134141234','xzvzxvzxcvzx','1989-08-12'),(31,'H. Kalap S.Kom.','L','96796','uiooyuioyuioy','1989-08-12'),(32,'admin1','P','789124789012','qpoewiur;lakdf.mn aeoriqpr','1989-08-12');
 /*!40000 ALTER TABLE `tb_pegawai` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -178,13 +179,14 @@ DROP TABLE IF EXISTS `tb_pelanggan`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tb_pelanggan` (
   `kode_pelanggan` int(11) NOT NULL AUTO_INCREMENT,
-  `nama_pelanggan` varchar(50) NOT NULL,
+  `nama_pelanggan` varchar(150) NOT NULL,
   `jenis_kelamin` enum('L','P') NOT NULL,
   `no_telepon` varchar(15) NOT NULL,
   `alamat` varchar(255) NOT NULL,
+  `tgl_lahir` date NOT NULL,
   PRIMARY KEY (`kode_pelanggan`),
   KEY `data` (`nama_pelanggan`,`jenis_kelamin`,`no_telepon`,`alamat`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -193,7 +195,7 @@ CREATE TABLE `tb_pelanggan` (
 
 LOCK TABLES `tb_pelanggan` WRITE;
 /*!40000 ALTER TABLE `tb_pelanggan` DISABLE KEYS */;
-INSERT INTO `tb_pelanggan` VALUES (1,'David Jones','L','223456789','Bandung'),(3,'Micky Dolenz','L','223456787','Depok'),(4,'Mike Nesmith','L','223456786','Garut'),(2,'Peter Tork','L','223456788','Cirebon');
+INSERT INTO `tb_pelanggan` VALUES (1,'David Jones','L','223456789','Bandung','1987-06-26'),(2,'Peter Tork','L','223456788','Cirebon','1987-06-26'),(3,'Micky Dolenz','L','223456787','Depok','1987-06-26'),(4,'Mike Nesmith','L','223456786','Garut','1987-06-26'),(5,'Cofang Wilson','L','223456542','New Castle','1987-06-26'),(6,'Micky Mouse','L','758456787','Disney Island','1987-06-26'),(7,'Michael Jordan','L','999456786','New York','1987-06-26'),(8,'Peter Parker','L','221456788','New York','1987-06-26'),(9,'Lavinia Hamill','P','221456788','Sheldon Lakes','1987-06-26'),(10,'Dr. Imogen Doyle','L','0578610464','Kai Way','1987-06-26'),(11,'Miss Dessie Lakin','P','18023545890','Hintz Squares','1994-11-26'),(12,'Ms. Bonnie Hoeger','P','3384833744','Norene Plains','1994-11-26'),(13,'Bart Kling','L','8452460713','Braun Dam','1994-11-26'),(14,'Suzanne Keebler','P','16060323293','Shanahan Spring','1994-11-26'),(15,'Ruthie Rosenbaum','P','19590322425','Jeffry Port','1994-11-26'),(16,'Carmine Hessel','P','19447980246','Waters Station','1994-11-26'),(17,'Makenzie Veum DVM','P','7442297840','Kristin Points','1994-11-26'),(18,'Bernhard Schroeder Sr.','L','19225165601','Boehm Street','1994-11-26'),(19,'Jaqueline Hartmann','P','15738435641','Kshlerin Cove','1994-11-26'),(20,'Amanda Swift','P','1549034596','Mason Field','1994-11-26'),(21,'Era Jaskolski','P','5490039172','Danielle Bridge','1976-01-26'),(22,'Leon Nienow','L','6642252696','Paucek Highway','1976-01-26'),(23,'Adrain Rohan','L','1111602849','Gorczany Neck','1976-01-26'),(24,'Cleveland Sipes','L','9000461833','Dax Highway','1976-01-26'),(25,'Dr. Camron Dibbert','L','2017608961','Camren Springs','1976-01-26'),(26,'Estelle Spinka DDS','P','9977873530','Hertha Garden','1976-01-26'),(28,'a\'i','P','7809431','jl manis kidul, kuningan 12345','1976-01-26'),(29,'gudang7','P','5173907491234','qpeworzlkj asdf.,nqwer34314','1995-08-15');
 /*!40000 ALTER TABLE `tb_pelanggan` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -293,4 +295,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-11  6:03:44
+-- Dump completed on 2018-08-27  7:02:16
