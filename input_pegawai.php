@@ -1,8 +1,7 @@
 <?php  # Script input_pegawai.php
 // This script insert new data pegawai to the database.
 
-function dateDifference($date_1 , $date_2 , $differenceFormat = '%y' )
-{
+function dateDifference($date_1 , $date_2 , $differenceFormat = '%y' ) {
     $datetime1 = date_create($date_1);
     $datetime2 = date_create($date_2);
     

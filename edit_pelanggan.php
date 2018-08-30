@@ -1,6 +1,14 @@
 <?php  # Script edit_pelanggan.php
 // This script update data pelanggan.
 
+function dateDifference($date_1, $date_2, $differenceFormat = '%y') {
+    $datetime1 = date_create($date_1);
+    $datetime2 = date_create($date_2);
+    $interval = date_diff($datetime1, $datetime2, TRUE);
+
+    return $interval->format($differenceFormat);
+}
+
 $page_title = 'Data Pelanggan';
 include('includes/header.html');
 
@@ -53,6 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = 'Jenis kelamin tidak valid!';
     }  // End IF.
 
+    $today = time();
+    if (!isset($val['tgl']) || (dateDifference(date('Ymd'), $val['tgl']) < 18)) {
+        $errors[] = 'Tanggal lahir tidak valid!';
+    }
+
     // Validate nomor telepon:
     if (empty($val['no_telp']) || !is_numeric($val['no_telp']) || (strlen($val['no_telp']) < 3) || (strlen($val['no_telp']) > 15)) {
         $errors[] = 'No. Telepon tidak valid!';
@@ -74,10 +87,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $nl = mysqli_real_escape_string($dbc, $val['nama']);
         $jk = mysqli_real_escape_string($dbc, $val['jk']);
+        $tgl = mysqli_real_escape_string($dbc, $val['tgl']);
         $nt = mysqli_real_escape_string($dbc, $val['no_telp']);
         $a = mysqli_real_escape_string($dbc, $val['alamat']);
 
-        $q = "SELECT * FROM tb_pelanggan WHERE (kode_pelanggan != $id AND ((nama_pelanggan = '$nl' AND jenis_kelamin = '$jk' AND alamat = '$a') OR (no_telepon = '$nt')))";
+        $q = "SELECT * FROM tb_pelanggan WHERE (kode_pelanggan != $id AND ((nama_pelanggan = '$nl' AND jenis_kelamin = '$jk' AND tgl_lahir = '$tgl') OR (no_telepon = '$nt')))";
 
         $r = @mysqli_query($dbc, $q);
         if ($r) {
@@ -85,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $errors[] = 'Data sudah ada!';
                 goto checkError;
             } else {
-                $q = "UPDATE tb_pelanggan SET nama_pelanggan = '$nl', jenis_kelamin = '$jk', no_telepon = '$nt', alamat = '$a' WHERE kode_pelanggan = $id LIMIT 1";
+                $q = "UPDATE tb_pelanggan SET nama_pelanggan = '$nl', jenis_kelamin = '$jk', tgl_lahir = '$tgl', no_telepon = '$nt', alamat = '$a' WHERE kode_pelanggan = $id LIMIT 1";
                 $r = @mysqli_query($dbc, $q);
                 if ($r) {
                     if (mysqli_affected_rows($dbc) == 1) {
@@ -118,6 +132,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stJk = $row['jenis_kelamin'];
     }
 
+    if (isset($val['tgl'])) {
+        $stTgl = $val['tgl'];
+    } else {
+        $stTgl = $row['tgl_lahir'];
+    }
+
     // Make no_telp sticky:
     if (isset($val['no_telp'])) {
         $stNt = $val['no_telp'];
@@ -135,6 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     echo '<form action="edit_pelanggan.php" method="post">
         <p>Nama: <input name="nama" type="text" minlength="2" maxlength="150" value="' . $stNama . '" /></p>
         <p>Jenis Kelamin: <input name="jk" type="radio" value="L"' . (($stJk == 'L') ? ' checked="checked"' : '') . ' />Laki-laki <input name="jk" type="radio" value="P"' . (($stJk == 'P') ? ' checked="checked"' : '') . ' />Perempuan</p>
+        <p>Tanggal Lahir: <input name="tgl" type="date" value="' . $stTgl . '" /></p>
         <p>No. Telepon: <input name="no_telp" type="text" minlength="3" maxlength="15" value="' . $stNt . '" /></p>
         <p>Alamat: <textarea name="alamat" rows="6" cols="50">' . $stA . '</textarea></p>
         <p><input name="id" type="hidden" value="' . $id . '" /></p>
