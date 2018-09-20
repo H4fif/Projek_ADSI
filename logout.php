@@ -6,7 +6,7 @@ session_start();  // Start the session.
 // If the user has not logged in and try to access this page directly, redirect the user.
 if (!isset($_SESSION['agent'], $_SESSION['user_id']) || ($_SESSION['agent'] != md5($_SERVER['HTTP_USER_AGENT']))) {
 
-    ob_end_clean();
+    // ob_end_clean();
     header('Location: index.php');  // Redirect the user to homepage.
     exit;
 

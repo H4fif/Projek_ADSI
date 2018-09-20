@@ -1,12 +1,18 @@
 <?php  # Script lihat_pegawai.php
 // This script display data pegawai from database.
 
+/* !!! BUGS !!!
+  - Cannot display the search result.
+    Problem : unknown
+    Solution : unknown
+ */
+
 /* FUNCTIONS */
 
-// Function to check whether the number is kelipatan 5.
+// Function to check whether the number is multiple of 5.
 // Need 1 parameter $value, should be numeric int.
 function check_five($value) {
-    if (($value % 5) == 0) {
+    if ((($value % 5) == 0) && $value > 1) {
         return TRUE;
     } else {
         return FALSE;
@@ -14,10 +20,42 @@ function check_five($value) {
 }
 
 function check_start($value, $display) {
-    if (($value % $display) == 0) {
+    if ((($value % $display) == 0) && ($value >= 0)) {
         return TRUE;
     } else {
         return FALSE;
+    }
+}
+
+function validasiHalaman($maksHalaman, $inputHalaman) {
+    if (filter_var($_GET['display'], FILTER_VALIDATE_INT, array('options' => array('min_range' => 1, 'max_range' => 50))) && (($_GET['display'] % 5) == 0)) {
+        return $_GET['display'];
+    } else {
+        if (isset($_SESSION['display'])) {
+            return $_SESSION['display'];
+        } else {
+            return 5;
+        }
+    }
+}
+
+function validasiRid($kelipatan, $inputrid, $table, $dbc) {
+    $q = "SELECT COUNT(*) FROM $table";
+    if ($r = @mysqli_query($dbc, $q)) {
+        list($row) = mysqli_fetch_array($r, MYSQLI_NUM);
+        $maxRow = $row;
+    } else {
+        echo mysqli_error($dbc);
+    }
+
+    if ((($inputrid % $kelipatan) == 0) && ($inputrid >= 0) && ($inputrid < $maxRow)) {
+        return $inputrid;
+    } else {
+        if (isset($_SESSION['start'])) {
+            return $_SESSION['start'];
+        } else {
+            return 0;
+        }
     }
 }
 
@@ -37,24 +75,24 @@ if (!isset($_SESSION['agent'], $_SESSION['user_level']) || ($_SESSION['agent'] !
 }  // End of user validation.
 
 // Validate the display:
-if (isset($_GET['display']) && check_five($_GET['display'])) {
-    $display = $_GET['display'];
+if (isset($_GET['display'])) {
+    $display = validasiHalaman(50, $_GET['display']);
 } else {
-    if (isset($_SESSION['display'])) {
-        $display = $_SESSION['display'];
-    } else {
-        $display = 5;
-    }  // End IF.
-
-}  // End IF.
-
+    $display = 5;
+} 
 $_SESSION['display'] = $display;
 
-if (isset($_GET['start']) && check_start($_GET['start'], $display)) {
-    $start = $_GET['start'];
+require('mysqli_connect.php');
+if (isset($_GET['start'])) {
+    $start = validasiRid(5, $_GET['start'], 'tb_pegawai', $dbc);
 } else {
-    $start = 0;
+    if (isset($_SESSION['start'])) {
+        $start = $_SESSION['start'];
+    } else {
+        $start = 0;
+    }
 }
+$_SESSION['start'] = $start;
 
 // SEARCHING validation:
 // If both values have a valid value, secure them.
@@ -102,7 +140,7 @@ if ($o == 2) {
 
 }  // End of IF ($o).
 
-require('mysqli_connect.php');  // Need the database connection.
+// require('mysqli_connect.php');  // Need the database connection.
 
 // Set the search input for database query:
 if ($col && ($keyword !== FALSE)) {
@@ -193,7 +231,7 @@ if ($r) {  // If query succeed, check the returned row.
             <th>Alamat</th>';
 
         // Special privilege to administrator:
-        if ($_SESSION['user_level'] == 'adminstrator') {
+        if ($_SESSION['user_level'] == 'administrator') {
             echo '<th>Ubah</th>
                 <th>Hapus</th>';
         }
@@ -289,8 +327,8 @@ if ($r) {  // If query succeed, check the returned row.
               <label>Tampilkan per halaman: </label>
               <select name="display">
                 <option value="5"' . (($display == 5) ? ' selected="selected"' : '') . '>5</option>
-                <option value="10"' . (($display == 10) ? ' selected="selected"' : '') . '>10</option>
-                <option value="15"' . (($display == 15) ? ' selected="selected"' : '') . '>15</option>
+                <option value="25"' . (($display == 25) ? ' selected="selected"' : '') . '>25</option>
+                <option value="50"' . (($display == 50) ? ' selected="selected"' : '') . '>50</option>
               </select>
             </p>
             <p>
